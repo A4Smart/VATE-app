@@ -8,18 +8,19 @@
     <item
         android:id="@+id/bevi"
         android:orderInCategory="102"
-        android:title="Bevilacqua La Masa"
+        android:title="@string/bevi"
         app:showAsAction="never" />
     <item
         android:id="@+id/negozi"
         android:orderInCategory="103"
-        android:title="Negozi"
+        android:title="@string/negozi"
         app:showAsAction="never" />
     <item
         android:id="@+id/bar"
         android:orderInCategory="103"
-        android:title="Caffè e Gourmet"
+        android:title="@string/caffe"
         app:showAsAction="never" />
-    <!-- <item android:id="@+id/listaBeacon" android:title="@string/lista_beacon"
-        android:orderInCategory="103" app:showAsAction="never" /> -->
+
+    <item android:id="@+id/listaBeacon" android:title="@string/lista_beacon"
+        android:orderInCategory="103" app:showAsAction="never" />
 </menu>

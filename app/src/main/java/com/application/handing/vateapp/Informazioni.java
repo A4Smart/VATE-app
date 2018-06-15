@@ -25,15 +25,15 @@ public class Informazioni extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_informazioni);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        btnLink = (Button) findViewById(R.id.btnSito);
-        testoInfo = (TextView) findViewById(R.id.infoText);
-        webVista = (WebView) findViewById(R.id.vistaWeb);
-        webProgress = (ProgressBar) findViewById(R.id.progressWebView);
+        btnLink = findViewById(R.id.btnSito);
+        testoInfo = findViewById(R.id.infoText);
+        webVista = findViewById(R.id.vistaWeb);
+        webProgress = findViewById(R.id.progressWebView);
 
         isWebOpen = false;
 

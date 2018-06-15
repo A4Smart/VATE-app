@@ -1,6 +1,5 @@
 package com.application.handing.vateapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -48,121 +46,126 @@ public class Bevilacqua extends AppCompatActivity {
         isStarted = false;
 
         String value= getIntent().getStringExtra("sezione");
-        if(value.equals("bevilacqua")){
-            getSupportActionBar().setTitle("Bevilacqua La Masa");
+        switch (value) {
+            case "bevilacqua":
+                getSupportActionBar().setTitle("Bevilacqua La Masa");
 
-            luoghi.add("Ingresso");
-            luoghi.add("Sala 1");
-            luoghi.add("Sala 2");
-            luoghi.add("Giroscala");
-            luoghi.add("Sala 3");
-            luoghi.add("Sala 4");
-            luoghi.add("Sala 5");
-            luoghi.add("Sala 6");
+                luoghi.add("Ingresso");
+                luoghi.add("Sala 1");
+                luoghi.add("Sala 2");
+                luoghi.add("Giroscala");
+                luoghi.add("Sala 3");
+                luoghi.add("Sala 4");
+                luoghi.add("Sala 5");
+                luoghi.add("Sala 6");
 
-            id_beacon.add("1_1/");
-            id_beacon.add("1_2/");
-            id_beacon.add("1_3/");
-            id_beacon.add("100_1/");
-            id_beacon.add("200_1/");
-            id_beacon.add("200_2/");
-            id_beacon.add("200_3/");
-            id_beacon.add("200_4/");
-        }
-        else if(value.equals("negozi")){
-            getSupportActionBar().setTitle("Negozi");
+                id_beacon.add("1_1/");
+                id_beacon.add("1_2/");
+                id_beacon.add("1_3/");
+                id_beacon.add("100_1/");
+                id_beacon.add("200_1/");
+                id_beacon.add("200_2/");
+                id_beacon.add("200_3/");
+                id_beacon.add("200_4/");
+                break;
 
-            //luoghi.add("Todaro");
-            //luoghi.add("Chioggia");
-            luoghi.add("Tokatzian");
-            luoghi.add("Cenedese");
-            luoghi.add("Rolex");
-            luoghi.add("Panerai");
-            luoghi.add("Ravagnan");
-            luoghi.add("Frey Wille");
-            //luoghi.add("Florian");
-            luoghi.add("Arcadia");
-            luoghi.add("66");
-            luoghi.add("Salvadori");
-            luoghi.add("Nardi");
-            luoghi.add("Pauly");
+            case "negozi":
+                getSupportActionBar().setTitle("Negozi");
 
-            //id_beacon.add("10000_1/");
-            //id_beacon.add("10000_4/");
-            id_beacon.add("10000_5/");
-            id_beacon.add("10000_8/");
-            id_beacon.add("10000_10/");
-            id_beacon.add("10000_11/");
-            id_beacon.add("10000_13/");
-            id_beacon.add("10000_14/");
-            //id_beacon.add("10000_15/");
-            id_beacon.add("10000_18/");
-            id_beacon.add("10000_19/");
-            id_beacon.add("10000_20/");
-            id_beacon.add("10000_21/");
-            id_beacon.add("10000_24/");
-        }
-        else if(value.equals("bar")){
-            getSupportActionBar().setTitle("Caffè e Gourmet");
+                //luoghi.add("Todaro");
+                //luoghi.add("Chioggia");
+                luoghi.add("Tokatzian");
+                luoghi.add("Cenedese");
+                luoghi.add("Rolex");
+                luoghi.add("Panerai");
+                luoghi.add("Ravagnan");
+                luoghi.add("Frey Wille");
+                //luoghi.add("Florian");
+                luoghi.add("Arcadia");
+                luoghi.add("66");
+                luoghi.add("Salvadori");
+                luoghi.add("Nardi");
+                luoghi.add("Pauly");
 
-            luoghi.add("Todaro");
-            luoghi.add("Todaro");
-            luoghi.add("Chioggia");
+                //id_beacon.add("10000_1/");
+                //id_beacon.add("10000_4/");
+                id_beacon.add("10000_5/");
+                id_beacon.add("10000_8/");
+                id_beacon.add("10000_10/");
+                id_beacon.add("10000_11/");
+                id_beacon.add("10000_13/");
+                id_beacon.add("10000_14/");
+                //id_beacon.add("10000_15/");
+                id_beacon.add("10000_18/");
+                id_beacon.add("10000_19/");
+                id_beacon.add("10000_20/");
+                id_beacon.add("10000_21/");
+                id_beacon.add("10000_24/");
+                break;
+
+            case "bar":
+                getSupportActionBar().setTitle("Caffè e Gourmet");
+
+                luoghi.add("Todaro");
+                luoghi.add("Todaro");
+                luoghi.add("Chioggia");
             /*luoghi.add("Tokatzian");
             luoghi.add("Cenedese");
             luoghi.add("Rolex");
             luoghi.add("Panerai");
             luoghi.add("Ravagnan");
             luoghi.add("Frey Wille");*/
-            luoghi.add("Florian");
+                luoghi.add("Florian");
             /*luoghi.add("Arcadia");
             luoghi.add("66");
             luoghi.add("Salvadori");
             luoghi.add("Nardi");
             luoghi.add("Pauly");*/
 
-            id_beacon.add("10000_1/");
-            id_beacon.add("10000_2/");
-            id_beacon.add("10000_4/");
+                id_beacon.add("10000_1/");
+                id_beacon.add("10000_2/");
+                id_beacon.add("10000_4/");
             /*id_beacon.add("10000_5/");
             id_beacon.add("10000_8/");
             id_beacon.add("10000_10/");
             id_beacon.add("10000_11/");
             id_beacon.add("10000_13/");
             id_beacon.add("10000_14/");*/
-            id_beacon.add("10000_15/");
+                id_beacon.add("10000_15/");
             /*id_beacon.add("10000_18/");
             id_beacon.add("10000_19/");
             id_beacon.add("10000_20/");
             id_beacon.add("10000_21/");
             id_beacon.add("10000_24/");*/
-        }
-        else if(value.equals("piazza")){
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
-            luoghi.add("Piazza");
+                break;
 
-            id_beacon.add("10000_2/");
-            id_beacon.add("10000_3/");
-            id_beacon.add("10000_6/");
-            id_beacon.add("10000_7/");
-            id_beacon.add("10000_9/");
-            id_beacon.add("10000_12/");
-            id_beacon.add("10000_16/");
-            id_beacon.add("10000_17/");
-            id_beacon.add("10000_21/");
-            id_beacon.add("10000_24/");
-            id_beacon.add("10000_25/");
-            id_beacon.add("10000_26/");
+            case "piazza":
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+                luoghi.add("Piazza");
+
+                id_beacon.add("10000_2/");
+                id_beacon.add("10000_3/");
+                id_beacon.add("10000_6/");
+                id_beacon.add("10000_7/");
+                id_beacon.add("10000_9/");
+                id_beacon.add("10000_12/");
+                id_beacon.add("10000_16/");
+                id_beacon.add("10000_17/");
+                id_beacon.add("10000_21/");
+                id_beacon.add("10000_24/");
+                id_beacon.add("10000_25/");
+                id_beacon.add("10000_26/");
+                break;
         }
 
         SALA_MAX = luoghi.size()-1;//poi si può mettere meglio questa cosa

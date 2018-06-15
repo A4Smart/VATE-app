@@ -89,4 +89,3 @@ public class BeaconsAdapter //extends BaseAdapter
         return anythingChanged;
     }
 }
-

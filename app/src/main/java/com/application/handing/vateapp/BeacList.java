@@ -51,8 +51,8 @@ public class BeacList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_beac_list);
-        beaconList = (ListView) findViewById(R.id.listaBeacon);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        beaconList = findViewById(R.id.listaBeacon);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -60,7 +60,7 @@ public class BeacList extends AppCompatActivity {
         initializeCallback();
 
         //GESTIONE CIRCOLETTO per visualizzare il caricamento
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         progressAnimator = ObjectAnimator.ofInt (progressBar, "progress", 0, 500);
         progressAnimator.setDuration (5000);
         progressAnimator.setInterpolator (new DecelerateInterpolator());
@@ -74,33 +74,32 @@ public class BeacList extends AppCompatActivity {
 
         startScanning();
         startValidating();
-
         circleOn();
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
+
         stopScanning();
         stopValidating();
-
         circleOff();
-        super.onPause();
     }
 
     //GESTIONE LISTVIEW
     private void gestioneLista(){
-        ArrayList<String> graficaList = new ArrayList<String>();
+        ArrayList<String> graficaList = new ArrayList<>();
         //GESTIONE LISTVIEW
         graficaList.clear();
         for(int i=0;i<mAdapter.mBeacons.size(); ++i){
-            int majo=mAdapter.mBeacons.get(i).major;
-            int mino=mAdapter.mBeacons.get(i).minor;
+            int major=mAdapter.mBeacons.get(i).major;
+            int minor=mAdapter.mBeacons.get(i).minor;
 
-            graficaList.add(" Beacon: major " + majo
-                    + ", minor " + mino + ", rssi " + Math.round(mAdapter.mBeacons.get(i).rssi));
+            graficaList.add(" Beacon: major " + major
+                    + ", minor " + minor + ", rssi " + Math.round(mAdapter.mBeacons.get(i).rssi));
         }
         circleOff();
-        listAdapter = new ArrayAdapter<String>(BeacList.this, R.layout.list_row, graficaList);//crea adapter
+        listAdapter = new ArrayAdapter<>(BeacList.this, R.layout.list_row, graficaList);//crea adapter
         beaconList.setAdapter(listAdapter);
     }
 
@@ -155,10 +154,8 @@ public class BeacList extends AppCompatActivity {
     //private void requestForPos(){}
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BT_REQUEST_ID) {
-            if (isBluetoothAvailableAndEnabled()) {
-                startScanning();
-            }
+        if (requestCode == BT_REQUEST_ID  && isBluetoothAvailableAndEnabled()) {
+            startScanning();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

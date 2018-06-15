@@ -23,7 +23,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 
@@ -43,11 +42,11 @@ public class MainActivity extends AppCompatActivity {
 
     //Funzione che controlla se il beacon è uno di quelli usati per Vate
     private boolean isBeaconVate(int tempMajor, int tempMinor){
-        for(int majors = 0; majors<beaconVate.length; majors++){
-            if(tempMajor==beaconVate[majors][0]){//tutti i major sono il primo elemento dei vari array
+        for (int[] aBeaconVate : beaconVate) {
+            if (tempMajor == aBeaconVate[0]) {//tutti i major sono il primo elemento dei vari array
                 //minors deve partire da 1 perchè 0 è il major
-                for(int minors=1; minors<beaconVate[majors].length; minors++){
-                    if(tempMinor==beaconVate[majors][minors])
+                for (int minors = 1; minors < aBeaconVate.length; minors++) {
+                    if (tempMinor == aBeaconVate[minors])
                         return true;
                 }
                 return false;
@@ -65,11 +64,10 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String INDIRIZZO_WEB = "https://vateapp.eu/";
 
-    int lastMaio, lastMino;//ultimi valori letti majo/mino del beacon più vicino
-    ArrayList prevMaio, prevMino;//array con ultimi major e minor per scegliere NearestBeacon
-    Boolean isStarted;//vero se pulsante play è stato schiacciato, deve ritornare falso quando esco dall'app (oppure no, da vedere)
-    String lastUrl;
-    Boolean firstStart = true;//bool utilizzato per mostrare la richiesta di accensione bluetooth
+    private int lastMajor, lastMinor;//ultimi valori letti majo/mino del beacon più vicino
+    private ArrayList prevMajor, prevMinor;//array con ultimi major e minor per scegliere NearestBeacon
+    private boolean isStarted;//vero se pulsante play è stato schiacciato, deve ritornare falso quando esco dall'app (oppure no, da vedere)
+    private String lastUrl;
 
     //GESTIONE BLUETOOTH
     final private static int BT_REQUEST_ID = 1;
@@ -83,10 +81,10 @@ public class MainActivity extends AppCompatActivity {
     final private static long VALIDATION_PERIOD = 3000;
     //END GESTIONE BLUETOOTH
 
-    ImageView immagineSfondo;
-    FloatingActionButton fabInfo, fabStart;//pulsanti informazioni/play in basso
-    ProgressBar webProgress;
-    WebView webVista;
+    private ImageView immagineSfondo;
+    private FloatingActionButton fabInfo, fabStart;//pulsanti informazioni/play in basso
+    private ProgressBar webProgress;
+    private WebView webVista;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,16 +93,16 @@ public class MainActivity extends AppCompatActivity {
 
         //beacVicino = (TextView) findViewById(R.id.textView);
         //DICHIARAZIONE CONTENUTI LAYOUT
-        immagineSfondo = (ImageView) findViewById(R.id.imgSfondo);
-        fabInfo = (FloatingActionButton) findViewById(R.id.fab1);
-        fabStart = (FloatingActionButton) findViewById(R.id.fab2);
-        webProgress = (ProgressBar) findViewById(R.id.progressWebView);
-        webVista = (WebView) findViewById(R.id.vistaWeb);
+        immagineSfondo = findViewById(R.id.imgSfondo);
+        fabInfo = findViewById(R.id.fab1);
+        fabStart = findViewById(R.id.fab2);
+        webProgress = findViewById(R.id.progressWebView);
+        webVista = findViewById(R.id.vistaWeb);
 
-        prevMaio = new ArrayList();
-        prevMino = new ArrayList();
+        prevMajor = new ArrayList();
+        prevMinor = new ArrayList();
         isStarted = false;
-        lastMaio = lastMino = 0;
+        lastMajor = lastMinor = 0;
         lastUrl = "vuoto";
 
         initializeCallback();
@@ -136,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 fabStart.setVisibility(View.GONE);
                 isStarted = true;
-                //turnWebOn(lastMaio, lastMino);
+                //turnWebOn(lastMajor, lastMinor);
                 Snackbar.make(view, "E' iniziata la tua avventura con V.A.T.E.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -151,30 +149,26 @@ public class MainActivity extends AppCompatActivity {
         //Richiesta automatica delle permission Bluetooth, Access Coarse Location
         //controllo run-time di connessione bluetooth e internet eccetera
         //provare metodo .check, che dicono sia meglio
-        if(firstStart) {
-            SystemRequirementsChecker.checkWithDefaultDialogs(this);
-            firstStart = false;
-        }
-
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
         startScanning();
         startValidating();
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
+
         stopScanning();
         stopValidating();
 
-        turnWebOff();//quando si esce dall'activity, ritorna allo stato iniziale e formatta gli array con ultimi majo/mino
+        turnWebOff();//quando si esce dall'activity, ritorna allo stato iniziale e formatta gli array con ultimi major/minor
         isStarted = false;
         fabStart.setVisibility(View.VISIBLE);
-        lastMaio = lastMino = 0;
+        lastMajor = lastMinor = 0;
         mAdapter.nearestMaio = 0;
         mAdapter.nearestMino = 0;
-        prevMaio.clear();
-        prevMino.clear();
-
-        super.onPause();
+        prevMajor.clear();
+        prevMinor.clear();
     }
 
     @Override
@@ -202,16 +196,17 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // gestione tocco su ciascun oggetto del menu
         int id = item.getItemId();
         // apertura activity
-        /*if (id == R.id.listaBeacon) {
+        if (id == R.id.listaBeacon) {
             Intent intent = new Intent(MainActivity.this, BeacList.class);
             startActivity(intent);
-        }*/
-        /*else*/ if (id == R.id.info) {
+        }
+        else if (id == R.id.info) {
             Intent intent = new Intent(MainActivity.this, Informazioni.class);
             startActivity(intent);
         }
@@ -392,16 +387,16 @@ public class MainActivity extends AppCompatActivity {
             //if(!isStarted) return;
 
             mAdapter.nearestBeac();
-            int Maio = mAdapter.nearestMaio;
-            int Mino = mAdapter.nearestMino;
-            fifo(Maio, Mino);
+            int major = mAdapter.nearestMaio;
+            int minor = mAdapter.nearestMino;
+            fifo(major, minor);
             if(!isStarted) return;
-            if ((lastMaio != Maio || lastMino != Mino) && isRealNearest(Maio,Mino)) {
+            if ((lastMajor != major || lastMinor != minor) && isRealNearest(major,minor)) {
                 String bau = "near: major " + String.valueOf(mAdapter.nearestMaio) + " minor " + String.valueOf(mAdapter.nearestMino);
                 //beacVicino.setText(bau);
-                turnWebOn(Maio, Mino);
-                lastMaio = Maio;
-                lastMino = Mino;
+                turnWebOn(major, minor);
+                lastMajor = major;
+                lastMinor = minor;
             }
         }
         //controlla se è un nostro beacon
@@ -419,10 +414,10 @@ public class MainActivity extends AppCompatActivity {
                     int Mino = mAdapter.nearestMino;
                     fifo(Maio, Mino);
                     //beacVicino.setText("near: major " + mAdapter.nearestMaio + " minor " + mAdapter.nearestMino);
-                    if ((lastMaio != Maio || lastMino != Mino) && isRealNearest(Maio,Mino)) {
+                    if ((lastMajor != Maio || lastMinor != Mino) && isRealNearest(Maio,Mino)) {
                         turnWebOn(Maio, Mino);
-                        lastMaio = Maio;
-                        lastMino = Mino;
+                        lastMajor = Maio;
+                        lastMinor = Mino;
                     }*/
                 }
             }
@@ -456,24 +451,23 @@ public class MainActivity extends AppCompatActivity {
 
     //FIFO ULTIMI VALORI MAJOR/MINOR
     void fifo(int nowMaio, int nowMino){
-        if(prevMaio.size()>MEMORIA_FIFO && prevMino.size()>MEMORIA_FIFO){
-            prevMaio.remove(0);
-            prevMino.remove(0);
+        if(prevMajor.size()>MEMORIA_FIFO && prevMinor.size()>MEMORIA_FIFO){
+            prevMajor.remove(0);
+            prevMinor.remove(0);
         }
-        prevMaio.add(nowMaio);
-        prevMino.add(nowMino);
+        prevMajor.add(nowMaio);
+        prevMinor.add(nowMino);
     }
     //VERIFICA BEACON PIU' VICINO
     boolean isRealNearest(int nowMaio, int nowMino){
         if(!isBeaconVate(nowMaio,nowMino)) return false;
         int counter = 0;
-        for(int i=0;i<prevMaio.size();i++){
-            if(prevMaio.get(i).equals(nowMaio) && prevMino.get(i).equals(nowMino))
+
+        for(int i = 0; i< prevMajor.size(); i++){
+            if(prevMajor.get(i).equals(nowMaio) && prevMinor.get(i).equals(nowMino))
                 counter ++;
         }
-        if(counter >= VALORE_MINIMO)
-            return true;
-        else
-            return false;
+
+        return counter >= VALORE_MINIMO;
     }
 }

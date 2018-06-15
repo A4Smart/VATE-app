@@ -9,14 +9,14 @@ public class BeaconModel
 {
     final private static String estimoteUuid = "b9407f30-f5f8-466e-aff9-25556b57fe6d";//Uuid dei beacon Estimote
 
-    public final static int DIM_FIFO = 20;
-    public final static int DEV_STD = 15;
+    private final static int DIM_FIFO = 20;
+    private final static int DEV_STD = 15;
 
     //VARIABILI
-    public String uuid;         // UUID of beacon
+    private String uuid;         // UUID of beacon
     public int major;           // major of beacon
     public int minor;           // minor of beacon
-    public int txPower;         // reference power
+    private int txPower;         // reference power
     public int istantRssi;      // current RSSI, non usato
     public double rssi;         // average RSSI
 
@@ -35,21 +35,18 @@ public class BeaconModel
 
     //funzione che tramite il minor controlla se è un nostro beacon
     public boolean isEstimoteBeacon(){
-        if(uuid.equals(estimoteUuid))
-            return true;
-        else
-            return false;
+        return uuid.equals(estimoteUuid);
     }
 
     // MEDIA_RSSI: --------------------------------------
     //MEDIA, REIEZIONE DATI RSSI  (NB: torna 0 se errore)
-    public double media_rssi(){
-        if (rssi_list.size()<=0)
-            return 0;//se torna 0, significa che errore
+    private double media_rssi(){
         double sum = 0.0;
-        for(int i:rssi_list)
-            sum += i;
-        return sum / rssi_list.size(); // sempre diverso da zero size (perchè chiamata se =10)
+        if(rssi_list.size()>0) {
+            for(int i:rssi_list) sum += i;
+            sum/=rssi_list.size();
+        }
+        return sum; // sempre diverso da zero size (perchè chiamata se =10)
     }
 
     // REAL_RSSI: --------------------------------------
@@ -57,20 +54,18 @@ public class BeaconModel
     public double real_rssi(){
         double sum = 0.0;
         int counter = 0;
-        double media_semplice=media_rssi(); // tengo double come media degli rssi interi
-        if( media_semplice==0)
-            return 0; // 0=errore
+        double media_semplice = media_rssi(); // tengo double come media degli rssi interi
 
-        for(int i=0;i<rssi_list.size();++i) {
-            if(Math.abs(rssi_list.get(i) - media_semplice) < DEV_STD) {
-                sum += rssi_list.get(i);
-                counter += 1;
+        if( media_semplice==0) return 0; // 0=errore
+
+        for (int elem : rssi_list) {
+            if(Math.abs(elem) - media_semplice < DEV_STD) {
+                sum+=elem;
+                counter++;
             }
         }
-        if (counter<=0 || sum <=0)
-            return media_semplice;
-        else
-            return sum / counter;
+
+        return (counter<=0 || sum <=0) ? media_semplice : sum/counter;
     }
 
     // DATAENTRY:-----------------------------------------
