@@ -171,13 +171,13 @@ public class Bevilacqua extends AppCompatActivity {
         SALA_MAX = luoghi.size()-1;//poi si può mettere meglio questa cosa
 
         //immagineSfondo = (ImageView) findViewById(R.id.imageBevi);
-        istruzioni = (TextView) findViewById(R.id.testoIstruzioni);
-        webProgress = (ProgressBar) findViewById(R.id.progressWebView);
-        webVista = (WebView) findViewById(R.id.vistaWeb);
-        btnSala = (Button) findViewById(R.id.btnNomeSala);
+        istruzioni = findViewById(R.id.testoIstruzioni);
+        webProgress = findViewById(R.id.progressWebView);
+        webVista = findViewById(R.id.vistaWeb);
+        btnSala = findViewById(R.id.btnNomeSala);
 
-        FloatingActionButton fabDestra = (FloatingActionButton) findViewById(R.id.fabDex);
-        FloatingActionButton fabSinistra = (FloatingActionButton) findViewById(R.id.fabSix);
+        FloatingActionButton fabDestra = findViewById(R.id.fabDex);
+        FloatingActionButton fabSinistra = findViewById(R.id.fabSix);
 
         //GESTIONE WEBVIEW, PROGRESS BAR durante caricamento pagina web
         webVista.setWebChromeClient(new WebChromeClient() {

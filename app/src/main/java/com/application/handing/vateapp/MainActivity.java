@@ -11,9 +11,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     //Beacon da usare per App Vate
     //array di array -> il primo elemento è il major, gli altri tutti i minor associati a quel major
@@ -54,9 +57,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-
-    //TextView beacVicino;
-
     //array di grandezza MEMORIA_FIFO con ultimi majo/mino letti
     //beacon deve essere presente almeno VALORE_MINIMO volte per essere effettivamente il più vicino
     private final static int MEMORIA_FIFO = 4;
@@ -82,9 +82,11 @@ public class MainActivity extends AppCompatActivity {
     //END GESTIONE BLUETOOTH
 
     private ImageView immagineSfondo;
-    private FloatingActionButton fabInfo, fabStart;//pulsanti informazioni/play in basso
     private ProgressBar webProgress;
     private WebView webVista;
+    private DrawerLayout mDrawer;
+    private Toolbar toolbar;
+    private NavigationView nvDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
         //beacVicino = (TextView) findViewById(R.id.textView);
         //DICHIARAZIONE CONTENUTI LAYOUT
         immagineSfondo = findViewById(R.id.imgSfondo);
-        fabInfo = findViewById(R.id.fab1);
-        fabStart = findViewById(R.id.fab2);
         webProgress = findViewById(R.id.progressWebView);
         webVista = findViewById(R.id.vistaWeb);
 
@@ -106,6 +106,17 @@ public class MainActivity extends AppCompatActivity {
         lastUrl = "vuoto";
 
         initializeCallback();
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mDrawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.nav_open, R.string.nav_close);
+        mDrawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        nvDrawer = findViewById(R.id.nav_view);
+        nvDrawer.setNavigationItemSelectedListener(this);
 
         //GESTIONE WEBVIEW, PROGRESS BAR durante caricamento pagina web
         webVista.setWebChromeClient(new WebChromeClient() {
@@ -120,35 +131,12 @@ public class MainActivity extends AppCompatActivity {
         });
         webVista.setWebViewClient(new WebViewClient());
         webVista.getSettings().setJavaScriptEnabled(true);
-
-        //GESTIONE BOTTONI in basso
-        fabInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, Istruzioni.class);
-                startActivity(intent);
-            }
-        });
-        fabStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fabStart.setVisibility(View.GONE);
-                isStarted = true;
-                //turnWebOn(lastMajor, lastMinor);
-                Snackbar.make(view, "E' iniziata la tua avventura con V.A.T.E.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        //END GESTIONE BOTTONI
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        //Richiesta automatica delle permission Bluetooth, Access Coarse Location
-        //controllo run-time di connessione bluetooth e internet eccetera
-        //provare metodo .check, che dicono sia meglio
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
         startScanning();
         startValidating();
@@ -163,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
 
         turnWebOff();//quando si esce dall'activity, ritorna allo stato iniziale e formatta gli array con ultimi major/minor
         isStarted = false;
-        fabStart.setVisibility(View.VISIBLE);
         lastMajor = lastMinor = 0;
         mAdapter.nearestMaio = 0;
         mAdapter.nearestMino = 0;
@@ -186,63 +173,51 @@ public class MainActivity extends AppCompatActivity {
         }*/
         turnWebOff();
         isStarted = false;
-        fabStart.setVisibility(View.VISIBLE);
-    }
-
-    //GESTIONE MENU IN ALTO A DX
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // creazione menu, oggetti definiti nel file menu_main nella cartella res/menu
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // gestione tocco su ciascun oggetto del menu
-        int id = item.getItemId();
-        // apertura activity
-        if (id == R.id.listaBeacon) {
-            Intent intent = new Intent(MainActivity.this, BeacList.class);
-            startActivity(intent);
-        }
-        else if (id == R.id.info) {
-            Intent intent = new Intent(MainActivity.this, Informazioni.class);
-            startActivity(intent);
-        }
-        else if(id == R.id.bevi) {
-            Intent intent = new Intent(MainActivity.this, Bevilacqua.class);
-            intent.putExtra("sezione", "bevilacqua");
-            startActivity(intent);
-        }
-        else if(id == R.id.negozi) {
-            Intent intent = new Intent(MainActivity.this, Bevilacqua.class);
-            intent.putExtra("sezione", "negozi");
-            startActivity(intent);
-        }
-        else if(id == R.id.bar) {
-            Intent intent = new Intent(MainActivity.this, Bevilacqua.class);
-            intent.putExtra("sezione", "bar");
-            startActivity(intent);
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Intent intent = new Intent();
+
+        switch (item.getItemId()) {
+            case R.id.listaBeacon:
+                intent = new Intent(MainActivity.this, BeacList.class);
+                break;
+            case R.id.info:
+                intent = new Intent(MainActivity.this, Informazioni.class);
+                break;
+            case R.id.bevi:
+                intent = new Intent(MainActivity.this, Bevilacqua.class);
+                intent.putExtra("sezione", "bevilacqua");
+                break;
+            case R.id.negozi:
+                intent = new Intent(MainActivity.this, Bevilacqua.class);
+                intent.putExtra("sezione", "negozi");
+                break;
+            case R.id.bar:intent = new Intent(MainActivity.this, Bevilacqua.class);
+                intent.putExtra("sezione", "bar");
+                break;
         }
 
+        startActivity(intent);
         return super.onOptionsItemSelected(item);
     }
     //END GESTIONE MENU
 
     //GESTIONE VISUALIZZAZIONE/SPEGNIMENTO LAYOUT WEB
-    public void turnWebOn(int maio, int mino){
+    public void turnWebOn(int major, int minor){
         if(immagineSfondo.getVisibility() == View.VISIBLE)
             immagineSfondo.setVisibility(View.INVISIBLE);
         if(webVista.getVisibility() == View.INVISIBLE)
             webVista.setVisibility(View.VISIBLE);
-        /*if(!webVista.getUrl().equals(INDIRIZZO_WEB + maio + "_" + mino + "/")*/
-        if(!lastUrl.equals(INDIRIZZO_WEB + maio + "_" + mino + "/")) {
-            lastUrl = INDIRIZZO_WEB + maio + "_" + mino + "/";
+        /*if(!webVista.getUrl().equals(INDIRIZZO_WEB + major + "_" + minor + "/")*/
+        if(!lastUrl.equals(INDIRIZZO_WEB + major + "_" + minor + "/")) {
+            lastUrl = INDIRIZZO_WEB + major + "_" + minor + "/";
             //webProgress.setVisibility(View.VISIBLE);//vedere se nel telefono vecchio parte prima
-            webVista.loadUrl(INDIRIZZO_WEB + maio + "_" + mino + "/");
+            webVista.loadUrl(INDIRIZZO_WEB + major + "_" + minor + "/");
         }
     }
+
     public void turnWebOff(){
         webVista.setVisibility(View.INVISIBLE);
         immagineSfondo.setVisibility(View.VISIBLE);
@@ -252,25 +227,24 @@ public class MainActivity extends AppCompatActivity {
     //BLUETOOTH CONTROL
     //control if Bt is enabled, create an instance of a BluetoothAdapter, into startScanning
     private boolean isBluetoothAvailableAndEnabled() {
-        //obtaining an instance of a BluetoothAdapter
         BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBtAdapter = btManager.getAdapter();
 
         return mBtAdapter != null && mBtAdapter.isEnabled();
     }
+
     //new activity to enable Bluetooth hardware, into startScanning
     private void requestForBluetooth() {
         Intent request = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(request, BT_REQUEST_ID);//ritorna onActivityResult quando viene creata l'activity
     }
+
     //bisogna aggiungere richiesta per accesso a posizione fatta bene
     //tipo richiesta solo per API maggiori di un tot
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BT_REQUEST_ID) {
-            if (isBluetoothAvailableAndEnabled()) {
-                startScanning();
-            }
+        if (requestCode == BT_REQUEST_ID && isBluetoothAvailableAndEnabled()) {
+            startScanning();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -280,28 +254,17 @@ public class MainActivity extends AppCompatActivity {
     //CALLBACK CREATION
     //crea gli oggetti di callback e relative funzioni, utilizzate durante startScanning
     private void initializeCallback() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mLeOldCallback = new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-                    handleNewBeaconDiscovered(device, rssi, scanRecord);
-                }
-
-            };
-        } else {
             mLeNewCallback = new ScanCallback() {
                 @Override
                 public void onScanResult(int callbackType, final ScanResult result) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (result.getScanRecord() == null ||
-                                result.getScanRecord().getBytes() == null) {
-                            return;
-                        }
-                        handleNewBeaconDiscovered(
-                                result.getDevice(),
-                                result.getRssi(),
-                                result.getScanRecord().getBytes());
+                    if (result.getScanRecord() == null ||
+                            result.getScanRecord().getBytes() == null) {
+                        return;
                     }
+                    handleNewBeaconDiscovered(
+                            result.getDevice(),
+                            result.getRssi(),
+                            result.getScanRecord().getBytes());
                 }
 
                 @Override
@@ -312,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             };
-        }
+
     }
     //END CALLBACK CREATION
 
@@ -325,31 +288,23 @@ public class MainActivity extends AppCompatActivity {
             //requestForBluetooth();
             return;
         } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mBtAdapter.startLeScan(mLeOldCallback);//*esite funzione che filtra gli uuid
-            } else {
-                BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();//return a BtLeScanner instance
-                if (scanner != null) {
-                    //defining settings for the scan
-                    ScanSettings settings = new ScanSettings.Builder()
-                            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)//SCAN_MODE_LOW_LATENCY
-                            // LOW_LATENCY, LOW_ENERGY,BALANCE ...vari tipi di scan possibili
-                            //.setReportDelay()//milliseconds
-                            .build();
-                    scanner.startScan(null, settings, mLeNewCallback);//List<ScanFilter> filters, ScanSettings settings, ScanCallback callback
-                }
+            BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();//return a BtLeScanner instance
+            if (scanner != null) {
+                //defining settings for the scan
+                ScanSettings settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)//SCAN_MODE_LOW_LATENCY
+                        // LOW_LATENCY, LOW_ENERGY,BALANCE ...vari tipi di scan possibili
+                        //.setReportDelay()//milliseconds
+                        .build();
+                scanner.startScan(null, settings, mLeNewCallback);//List<ScanFilter> filters, ScanSettings settings, ScanCallback callback
             }
         }
     }
     //STOP SCANSIONE
     private void stopScanning() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mBtAdapter.stopLeScan(mLeOldCallback);
-        } else {
-            BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
-            if (scanner != null) {
-                scanner.stopScan(mLeNewCallback);
-            }
+        BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
+        if (scanner != null) {
+            scanner.stopScan(mLeNewCallback);
         }
     }
 

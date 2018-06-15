@@ -12,5 +12,10 @@
     <string name="bevi">Bevilacqua La Masa</string>
     <string name="negozi">Negozi</string>
     <string name="caffe">Caffè e Gourmet</string>
+    <string name="by_a4smart">By A4Smart srls</string>
+
+
+    <string name="nav_open">Open navigation drawer</string>
+    <string name="nav_close">Close navigation drawer</string>
 
 </resources>

@@ -165,39 +165,30 @@ public class BeacList extends AppCompatActivity {
     //CALLBACK CREATION
     //crea gli oggetti di callback e relative funzioni, utilizzate durante startScanning
     private void initializeCallback() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mLeOldCallback = new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-                    handleNewBeaconDiscovered(device, rssi, scanRecord);
-                }
-
-            };
-        } else {
-            mLeNewCallback = new ScanCallback() {
-                @Override
-                public void onScanResult(int callbackType, final ScanResult result) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (result.getScanRecord() == null ||
-                                result.getScanRecord().getBytes() == null) {
-                            return;
-                        }
-                        handleNewBeaconDiscovered(
-                                result.getDevice(),
-                                result.getRssi(),
-                                result.getScanRecord().getBytes());
+        mLeNewCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, final ScanResult result) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (result.getScanRecord() == null ||
+                            result.getScanRecord().getBytes() == null) {
+                        return;
                     }
+                    handleNewBeaconDiscovered(
+                            result.getDevice(),
+                            result.getRssi(),
+                            result.getScanRecord().getBytes());
                 }
+            }
 
-                @Override
-                //return information about more than one device
-                public void onBatchScanResults(List<ScanResult> results) {
-                    for (final ScanResult result : results) {
-                        onScanResult(0, result);
-                    }
+            @Override
+            //return information about more than one device
+            public void onBatchScanResults(List<ScanResult> results) {
+                for (final ScanResult result : results) {
+                    onScanResult(0, result);
                 }
-            };
-        }
+            }
+        };
+
     }
     //END CALLBACK CREATION
 
@@ -207,31 +198,23 @@ public class BeacList extends AppCompatActivity {
             requestForBluetooth();
             //return;
         } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mBtAdapter.startLeScan(mLeOldCallback);//*esite funzione che filtra gli uuid
-            } else {
-                BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();//return a BtLeScanner instance
-                if (scanner != null) {
-                    //defining settings for the scan
-                    ScanSettings settings = new ScanSettings.Builder()
-                            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)//SCAN_MODE_LOW_LATENCY
-                            // LOW_LATENCY, LOW_ENERGY,BALANCE ...vari tipi di scan possibili
-                            //.setReportDelay()//milliseconds
-                            .build();
-                    scanner.startScan(null, settings, mLeNewCallback);//List<ScanFilter> filters, ScanSettings settings, ScanCallback callback
-                }
+            BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();//return a BtLeScanner instance
+            if (scanner != null) {
+                //defining settings for the scan
+                ScanSettings settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)//SCAN_MODE_LOW_LATENCY
+                        // LOW_LATENCY, LOW_ENERGY,BALANCE ...vari tipi di scan possibili
+                        //.setReportDelay()//milliseconds
+                        .build();
+                scanner.startScan(null, settings, mLeNewCallback);//List<ScanFilter> filters, ScanSettings settings, ScanCallback callback
             }
         }
     }
     //STOP SCANSIONE
     private void stopScanning() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mBtAdapter.stopLeScan(mLeOldCallback);
-        } else {
-            BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
-            if (scanner != null) {
-                scanner.stopScan(mLeNewCallback);
-            }
+        BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();
+        if (scanner != null) {
+            scanner.stopScan(mLeNewCallback);
         }
     }
 
