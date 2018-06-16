@@ -2,9 +2,10 @@ package com.application.handing.vateapp;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -15,7 +16,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bevilacqua extends AppCompatActivity {
+import static com.application.handing.vateapp.Fragments.setFragment;
+
+public class BevilacquaFragment extends Fragment {
     //String sale[] = {"Ingresso","Sala 1","Sala 2","Giroscala","Sala 3","Sala 4","Sala 5","Sala 6" };
     //String beacon[] = {"1_1/","1_2/","1_3/","100_1/","200_1/","200_2/","200_3/","200_4/"};
     List<String> luoghi = new ArrayList<>();
@@ -32,23 +35,28 @@ public class Bevilacqua extends AppCompatActivity {
     TextView istruzioni;
     String lastUrl = " ";
 
+    public static BevilacquaFragment newInstance(String sezione) {
+        Bundle args = new Bundle();
+        args.putString("sezione", sezione);
+
+        BevilacquaFragment fragment = new BevilacquaFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bevilacqua);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.frag_bevilacqua, container, false);
 
         numero_sala = 0;
         sala_precedente = 100;//era 10
         isStarted = false;
 
-        String value= getIntent().getStringExtra("sezione");
+        String value= getArguments().getString("sezione");
+
         switch (value) {
             case "bevilacqua":
-                getSupportActionBar().setTitle("Bevilacqua La Masa");
+                getActivity().setTitle("BevilacquaFragment La Masa");
 
                 luoghi.add("Ingresso");
                 luoghi.add("Sala 1");
@@ -70,7 +78,7 @@ public class Bevilacqua extends AppCompatActivity {
                 break;
 
             case "negozi":
-                getSupportActionBar().setTitle("Negozi");
+                getActivity().setTitle("Negozi");
 
                 //luoghi.add("Todaro");
                 //luoghi.add("Chioggia");
@@ -104,7 +112,7 @@ public class Bevilacqua extends AppCompatActivity {
                 break;
 
             case "bar":
-                getSupportActionBar().setTitle("Caffè e Gourmet");
+                getActivity().setTitle("Caffè e Gourmet");
 
                 luoghi.add("Todaro");
                 luoghi.add("Todaro");
@@ -171,13 +179,13 @@ public class Bevilacqua extends AppCompatActivity {
         SALA_MAX = luoghi.size()-1;//poi si può mettere meglio questa cosa
 
         //immagineSfondo = (ImageView) findViewById(R.id.imageBevi);
-        istruzioni = findViewById(R.id.testoIstruzioni);
-        webProgress = findViewById(R.id.progressWebView);
-        webVista = findViewById(R.id.vistaWeb);
-        btnSala = findViewById(R.id.btnNomeSala);
+        istruzioni = v.findViewById(R.id.testoIstruzioni);
+        webProgress = v.findViewById(R.id.progressWebView);
+        webVista = v.findViewById(R.id.vistaWeb);
+        btnSala = v.findViewById(R.id.btnNomeSala);
 
-        FloatingActionButton fabDestra = findViewById(R.id.fabDex);
-        FloatingActionButton fabSinistra = findViewById(R.id.fabSix);
+        FloatingActionButton fabDestra = v.findViewById(R.id.fabDex);
+        FloatingActionButton fabSinistra = v.findViewById(R.id.fabSix);
 
         //GESTIONE WEBVIEW, PROGRESS BAR durante caricamento pagina web
         webVista.setWebChromeClient(new WebChromeClient() {
@@ -226,10 +234,11 @@ public class Bevilacqua extends AppCompatActivity {
                 }
             }
         });*/
+        return v;
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         turnWebOn();
@@ -237,19 +246,18 @@ public class Bevilacqua extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         turnWebOff();
         sala_precedente = 100;//era 10
 
         super.onPause();
     }
 
-    @Override
     public void onBackPressed() {//decidere se lasciare la possibilità di navigare avanti/indietro oppure no
         if(webVista.canGoBack()) {
             webVista.goBack();
         } else {
-            super.onBackPressed();
+            setFragment(getActivity(), HomeFragment.newInstance());
         }
     }
 

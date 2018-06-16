@@ -11,13 +11,16 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -27,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BeacList extends AppCompatActivity {
+import static android.content.Context.BLUETOOTH_SERVICE;
+
+public class BeaconsFragment extends Fragment {
     //GESTIONE LAYOUT
     private ListView beaconList;
     ArrayAdapter<String> listAdapter;
@@ -47,29 +52,32 @@ public class BeacList extends AppCompatActivity {
     final private static long VALIDATION_PERIOD = 3000;
     //END GESTIONE BLUETOOTH
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_beac_list);
-        beaconList = findViewById(R.id.listaBeacon);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    public static BeaconsFragment newInstance() {
+        return new BeaconsFragment();
+    }
 
-        initializeCallback();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.frag_beacons,container, false);
+        getActivity().setTitle(R.string.title_activity_beac_list);
+
+        beaconList = v.findViewById(R.id.listaBeacon);
 
         //GESTIONE CIRCOLETTO per visualizzare il caricamento
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = v.findViewById(R.id.progressBar);
         progressAnimator = ObjectAnimator.ofInt (progressBar, "progress", 0, 500);
         progressAnimator.setDuration (5000);
         progressAnimator.setInterpolator (new DecelerateInterpolator());
         circleOn();
         //END GESTIONE CIRCOLETTO
+
+        initializeCallback();
+
+        return v;
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         startScanning();
@@ -78,7 +86,7 @@ public class BeacList extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
 
         stopScanning();
@@ -99,7 +107,7 @@ public class BeacList extends AppCompatActivity {
                     + ", minor " + minor + ", rssi " + Math.round(mAdapter.mBeacons.get(i).rssi));
         }
         circleOff();
-        listAdapter = new ArrayAdapter<>(BeacList.this, R.layout.list_row, graficaList);//crea adapter
+        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_row, graficaList);//crea adapter
         beaconList.setAdapter(listAdapter);
     }
 
@@ -121,7 +129,7 @@ public class BeacList extends AppCompatActivity {
     //control if Bt is enabled, create an instance of a BluetoothAdapter, into startScanning
     private boolean isBluetoothAvailableAndEnabled() {
         //obtaining an instance of a BluetoothAdapter
-        BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+        BluetoothManager btManager = (BluetoothManager) getActivity().getSystemService(BLUETOOTH_SERVICE);
         mBtAdapter = btManager.getAdapter();
 
         return mBtAdapter != null && mBtAdapter.isEnabled();
@@ -140,10 +148,10 @@ public class BeacList extends AppCompatActivity {
         }*/
     }
     public void getPermissionToLoc() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            if (shouldShowRequestPermissionRationale(
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            if (shouldShowRequestPermissionRationale( Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
             }
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_CODE_LOCATION);
@@ -153,7 +161,7 @@ public class BeacList extends AppCompatActivity {
     //tipo richiesta solo per API maggiori di un tot
     //private void requestForPos(){}
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BT_REQUEST_ID  && isBluetoothAvailableAndEnabled()) {
             startScanning();
         } else {
@@ -168,11 +176,8 @@ public class BeacList extends AppCompatActivity {
         mLeNewCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, final ScanResult result) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (result.getScanRecord() == null ||
-                            result.getScanRecord().getBytes() == null) {
-                        return;
-                    }
+                if (result.getScanRecord() != null && result.getScanRecord().getBytes() != null) {
+                    Log.d("Beacons", "onScanResult: "+result.getDevice());
                     handleNewBeaconDiscovered(
                             result.getDevice(),
                             result.getRssi(),
@@ -252,7 +257,7 @@ public class BeacList extends AppCompatActivity {
         //controlla se è un nostro beacon
         //if(!beacon.isDemoBeacon()) return;
 
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (beaconToAdd != null) {

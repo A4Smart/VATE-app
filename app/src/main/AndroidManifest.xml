@@ -53,7 +53,7 @@
                 android:value="com.application.handing.vateapp.MainActivity" />
         </activity>
         <activity
-            android:name="com.application.handing.vateapp.Bevilacqua"
+            android:name="com.application.handing.vateapp.BevilacquaFragment"
             android:label="@string/title_activity_bevilacqua"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait">
