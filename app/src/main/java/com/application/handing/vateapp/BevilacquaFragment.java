@@ -16,9 +16,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.application.handing.vateapp.Fragments.popSetFragment;
 import static com.application.handing.vateapp.Fragments.setFragment;
 
-public class BevilacquaFragment extends Fragment {
+public class BevilacquaFragment extends Fragment implements BackPressedFragment {
     //String sale[] = {"Ingresso","Sala 1","Sala 2","Giroscala","Sala 3","Sala 4","Sala 5","Sala 6" };
     //String beacon[] = {"1_1/","1_2/","1_3/","100_1/","200_1/","200_2/","200_3/","200_4/"};
     List<String> luoghi = new ArrayList<>();
@@ -257,7 +258,7 @@ public class BevilacquaFragment extends Fragment {
         if(webVista.canGoBack()) {
             webVista.goBack();
         } else {
-            setFragment(getActivity(), HomeFragment.newInstance());
+            popSetFragment(getActivity(), HomeFragment.newInstance());
         }
     }
 

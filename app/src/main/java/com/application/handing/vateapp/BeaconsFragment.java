@@ -31,8 +31,10 @@ import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
+import static com.application.handing.vateapp.Fragments.popSetFragment;
+import static com.application.handing.vateapp.Fragments.setFragment;
 
-public class BeaconsFragment extends Fragment {
+public class BeaconsFragment extends Fragment implements BackPressedFragment{
     //GESTIONE LAYOUT
     private ListView beaconList;
     ArrayAdapter<String> listAdapter;
@@ -292,6 +294,12 @@ public class BeaconsFragment extends Fragment {
             startValidating();
         }
     };
+
+    public void onBackPressed() {
+        stopScanning();
+
+        popSetFragment(getActivity(), HomeFragment.newInstance());
+    }
     //END BEACON VALIDATION
 
 }

@@ -28,8 +28,9 @@ import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
+import static com.application.handing.vateapp.Fragments.setFragment;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements BackPressedFragment {
 
 
 
@@ -152,6 +153,8 @@ public class HomeFragment extends Fragment {
             fabStart.setVisibility(View.VISIBLE);
         }*/
         turnWebOff();
+        stopScanning();
+        stopValidating();
         isStarted = false;
     }
 
