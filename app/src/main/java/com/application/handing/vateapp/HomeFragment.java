@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
-import static com.application.handing.vateapp.Fragments.setFragment;
 
 public class HomeFragment extends Fragment implements BackPressedFragment {
 
@@ -43,7 +42,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
 
     //Beacon da usare per App Vate
     //array di array -> il primo elemento è il major, gli altri tutti i minor associati a quel major
-    int [][] beaconVate = { {1, 1,2,3}, {100, 1}, {200, 1,2,3,4,5}, //BevilacquaFragment
+    private final int [][] beaconVate = { {1, 1,2,3}, {100, 1}, {200, 1,2,3,4,5}, //BevilacquaFragment
             {10000, 1,2,4,5,8,10,11,13,14,15,18,19,20,21,24,28} }; //Negozi piazza
     //{5000, 1,2,3,4}}; //Ufficio
     int [] majorInterni = {1, 100, 200};
@@ -62,7 +61,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
 
     //GESTIONE BLUETOOTH
     final private static int BT_REQUEST_ID = 1;
-    final  public static BeaconsAdapter mAdapter = new BeaconsAdapter();//dichiarazione oggetto della classe BeaconsAdapter
+    private final static BeaconsAdapter mAdapter = new BeaconsAdapter();//dichiarazione oggetto della classe BeaconsAdapter
     final private Handler mHandler = new Handler();//handler per gestire messaggi e runnable
     private BluetoothAdapter mBtAdapter = null;//BtAdapter to communicate with bluetooth
     //Callback
@@ -175,7 +174,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
 
 
     //GESTIONE VISUALIZZAZIONE/SPEGNIMENTO LAYOUT WEB
-    public void turnWebOn(int major, int minor){
+    private void turnWebOn(int major, int minor){
         if(immagineSfondo.getVisibility() == View.VISIBLE)
             immagineSfondo.setVisibility(View.INVISIBLE);
         if(webVista.getVisibility() == View.INVISIBLE)
@@ -188,7 +187,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
         }
     }
 
-    public void turnWebOff(){
+    private void turnWebOff(){
         webVista.setVisibility(View.INVISIBLE);
         immagineSfondo.setVisibility(View.VISIBLE);
     }
@@ -245,7 +244,6 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
         System.out.print("StartScanning is called");
         if (!isBluetoothAvailableAndEnabled()) {
             //requestForBluetooth();
-            return;
         } else {
             BluetoothLeScanner scanner = mBtAdapter.getBluetoothLeScanner();//return a BtLeScanner instance
             if (scanner != null) {
@@ -364,7 +362,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
     //END BEACON VALIDATION
 
     //FIFO ULTIMI VALORI MAJOR/MINOR
-    void fifo(int nowMajor, int nowMinor){
+    private void fifo(int nowMajor, int nowMinor){
         if(prevMajor.size()>MEMORIA_FIFO && prevMinor.size()>MEMORIA_FIFO){
             prevMajor.remove(0);
             prevMinor.remove(0);
@@ -373,7 +371,7 @@ public class HomeFragment extends Fragment implements BackPressedFragment {
         prevMinor.add(nowMinor);
     }
     //VERIFICA BEACON PIU' VICINO
-    boolean isRealNearest(int nowMaio, int nowMino){
+    private boolean isRealNearest(int nowMaio, int nowMino){
         if(!isBeaconVate(nowMaio,nowMino)) return false;
         int counter = 0;
 

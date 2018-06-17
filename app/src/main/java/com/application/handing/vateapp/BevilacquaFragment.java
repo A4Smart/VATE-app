@@ -17,24 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.application.handing.vateapp.Fragments.popSetFragment;
-import static com.application.handing.vateapp.Fragments.setFragment;
 
 public class BevilacquaFragment extends Fragment implements BackPressedFragment {
     //String sale[] = {"Ingresso","Sala 1","Sala 2","Giroscala","Sala 3","Sala 4","Sala 5","Sala 6" };
     //String beacon[] = {"1_1/","1_2/","1_3/","100_1/","200_1/","200_2/","200_3/","200_4/"};
-    List<String> luoghi = new ArrayList<>();
-    List<String> id_beacon = new ArrayList<>();
+    private List<String> luoghi = new ArrayList<>();
+    private List<String> id_beacon = new ArrayList<>();
     private final static String INDIRIZZO_WEB = "https://vateapp.eu/";
-    int numero_sala, sala_precedente;
+    private int numero_sala;
+    private int sala_precedente;
     //static int SALA_MAX=7;//numero di sale -1
-    int SALA_MAX;
-    Button btnSala;
-    Boolean isStarted;//vero se pulsante play è stato schiacciato, deve ritornare falso quando esco dall'app
+    private int SALA_MAX;
+    private Button btnSala;
+    private Boolean isStarted;//vero se pulsante play è stato schiacciato, deve ritornare falso quando esco dall'app
     //ImageView immagineSfondo;
-    WebView webVista;
-    ProgressBar webProgress;
-    TextView istruzioni;
-    String lastUrl = " ";
+    private WebView webVista;
+    private ProgressBar webProgress;
+    private TextView istruzioni;
+    private String lastUrl = " ";
 
     public static BevilacquaFragment newInstance(String sezione) {
         Bundle args = new Bundle();
@@ -262,7 +262,7 @@ public class BevilacquaFragment extends Fragment implements BackPressedFragment 
         }
     }
 
-    public void changeName(char a){
+    private void changeName(char a){
         if(a == 'd') {
             if(numero_sala == SALA_MAX)
                 numero_sala = 0;
@@ -280,7 +280,7 @@ public class BevilacquaFragment extends Fragment implements BackPressedFragment 
         btnSala.setText(luoghi.get(numero_sala));
     }
 
-    public void turnWebOn(){
+    private void turnWebOn(){
         /*if(immagineSfondo.getVisibility() == View.VISIBLE) {
             immagineSfondo.setVisibility(View.INVISIBLE);
             istruzioni.setVisibility(View.INVISIBLE);
@@ -294,7 +294,7 @@ public class BevilacquaFragment extends Fragment implements BackPressedFragment 
             lastUrl = nowUrl;
         }
     }
-    public void turnWebOff(){
+    private void turnWebOff(){
         webVista.setVisibility(View.INVISIBLE);
         //immagineSfondo.setVisibility(View.VISIBLE);
         istruzioni.setVisibility(View.INVISIBLE);

@@ -23,44 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.application.handing.vateapp.BeacList"
-            android:label="@string/title_activity_beac_list"
-            android:parentActivityName="com.application.handing.vateapp.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.application.handing.vateapp.MainActivity" />
-        </activity>
-        <activity
-            android:name="com.application.handing.vateapp.Informazioni"
-            android:label="@string/title_activity_informazioni"
-            android:parentActivityName="com.application.handing.vateapp.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.application.handing.vateapp.MainActivity" />
-        </activity>
-        <activity
-            android:name="com.application.handing.vateapp.Istruzioni"
-            android:label="@string/title_activity_istruzioni"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.application.handing.vateapp.MainActivity" />
-        </activity>
-        <activity
-            android:name="com.application.handing.vateapp.BevilacquaFragment"
-            android:label="@string/title_activity_bevilacqua"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.application.handing.vateapp.MainActivity" />
-        </activity>
     </application>
 
 </manifest>

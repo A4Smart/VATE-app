@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import static com.application.handing.vateapp.Fragments.popSetFragment;
-import static com.application.handing.vateapp.Fragments.setFragment;
 
 public class InfoFragment extends Fragment implements BackPressedFragment{
 

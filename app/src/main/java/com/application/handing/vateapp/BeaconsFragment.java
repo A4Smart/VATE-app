@@ -15,8 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,19 +30,18 @@ import java.util.List;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
 import static com.application.handing.vateapp.Fragments.popSetFragment;
-import static com.application.handing.vateapp.Fragments.setFragment;
 
 public class BeaconsFragment extends Fragment implements BackPressedFragment{
     //GESTIONE LAYOUT
     private ListView beaconList;
-    ArrayAdapter<String> listAdapter;
+    private ArrayAdapter<String> listAdapter;
     private ProgressBar progressBar;
     private ObjectAnimator progressAnimator;
 
     //GESTIONE BLUETOOTH
     final private static int BT_REQUEST_ID = 1;
     private static final int REQUEST_CODE_LOCATION = 2;
-    final  public static BeaconsAdapter mAdapter = new BeaconsAdapter();//dichiarazione oggetto della classe BeaconsAdapter
+    private final static BeaconsAdapter mAdapter = new BeaconsAdapter();//dichiarazione oggetto della classe BeaconsAdapter
     final private Handler mHandler = new Handler();//handler per gestire messaggi e runnable
     private BluetoothAdapter mBtAdapter = null;//BtAdapter to communicate with bluetooth
     //Callback
