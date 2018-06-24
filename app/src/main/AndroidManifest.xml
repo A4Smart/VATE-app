@@ -2,13 +2,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.a4smart.vate">
 
+    <!-- Bluetooth Low Energy is always needed to detect beacons -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <!-- Load data from internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Turn on bluetooth -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- Beacons detection and communication -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:allowBackup="true"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
