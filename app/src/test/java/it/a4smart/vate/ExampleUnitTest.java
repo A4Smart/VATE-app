@@ -1,4 +1,4 @@
-package com.application.handing.vateapp;
+package it.a4smart.vate;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.application.handing.vateapp;
+package it.a4smart.vate;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.application.giacomo.miovate", appContext.getPackageName());
+        assertEquals("it.a4smart.vate", appContext.getPackageName());
     }
 }
