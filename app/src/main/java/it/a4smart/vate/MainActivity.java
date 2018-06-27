@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
     private BeaconManager beaconManager;
     private FloatingActionButton fab;
     private WebView webView;
+    private WebView supportWebView;
+    private Beacon actual;
+    private Beacon next;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         setSupportActionBar(toolbar);
 
         webView = findViewById(R.id.webView);
+        supportWebView = new WebView(this);
+
         fab = findViewById(R.id.fab);
 
         //fab.setVisibility(View.VISIBLE);
@@ -51,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO go to the next page
+                showBeacon(next);
                 fab.setVisibility(View.GONE);
             }
         });
@@ -95,10 +101,20 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         return Constants.WEB_ADDRESS + major + "_" + minor + "/";
     }
 
-    public void showBeacon(Beacon beacon) {
-        String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
+    public void showBeacon(final Beacon beacon) {
+        final String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
+
         Log.d(TAG, "showBeacon: "+URL);
-        webView.loadUrl(URL);
+
+        supportWebView.loadUrl(URL);
+        supportWebView.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                webView.loadUrl(URL);
+                actual = beacon;
+            }
+        });
+
+
     }
 
     public Beacon nearestVATE(Collection<Beacon> beacons) {
@@ -114,6 +130,26 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         return nearest;
     }
 
+    public void updateBeacon(final Beacon beacon) {
+
+        int height = (int) Math.floor(webView.getContentHeight() * getResources().getDisplayMetrics().density);
+        int webViewHeight = webView.getMeasuredHeight();
+
+        if(actual == null || webView.getScrollY() + webViewHeight >= height) {
+            Log.d(TAG, "updateBeacon: end reached");
+            showBeacon(beacon);
+        }
+        else if (next == null || !isEqualBeacon(next, beacon)) {
+            Log.d(TAG, "updateBeacon: setting next");
+            next = beacon;
+            fab.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public boolean isEqualBeacon(Beacon a, Beacon b) {
+        return a.getId2().toString().equals(b.getId2().toString()) && a.getId3().toString().equals(b.getId3().toString());
+    }
+
     @Override
     public void onBeaconServiceConnect() {
 
@@ -122,11 +158,13 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 final Beacon nearest = nearestVATE(beacons);
 
-                if(nearest!=null) {
+
+
+                if(nearest!=null && (actual==null || !isEqualBeacon(nearest, actual))) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showBeacon(nearest);
+                            updateBeacon(nearest);
                         }
                     });
                 }
