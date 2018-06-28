@@ -30,8 +30,11 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
 
     private BeaconManager beaconManager;
     private FloatingActionButton fab;
-    private WebView webView;
-    private WebView supportWebView;
+
+    private WebView webViewA;
+    private WebView webViewB;
+    private boolean showingA;
+
     private Beacon actual;
     private Beacon next;
 
@@ -43,13 +46,14 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        webView = findViewById(R.id.webView);
-        supportWebView = new WebView(this);
+        webViewA = findViewById(R.id.webViewA);
+        webViewB = findViewById(R.id.webViewB);
+
+        showingA = true;
+        webViewA.setVisibility(View.VISIBLE);
+        webViewB.setVisibility(View.GONE);
 
         fab = findViewById(R.id.fab);
-
-        //fab.setVisibility(View.VISIBLE);
-        //webView.loadUrl("https://example.com/");
 
         permissionCheck();
         initBluetooth();
@@ -57,10 +61,26 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showBeacon(next);
+                actual=next;
+                swapWebViews();
                 fab.setVisibility(View.GONE);
             }
         });
+    }
+
+
+
+    void swapWebViews() {
+        Log.d(TAG, "swapWebViews: SWAPPING WEBVIEWS!");
+        if(showingA) {
+            webViewB.setVisibility(View.VISIBLE);
+            webViewA.setVisibility(View.GONE);
+        }
+        else {
+            webViewA.setVisibility(View.VISIBLE);
+            webViewB.setVisibility(View.GONE);
+        }
+        showingA = !showingA;
     }
 
     @Override
@@ -101,21 +121,6 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         return Constants.WEB_ADDRESS + major + "_" + minor + "/";
     }
 
-    public void showBeacon(final Beacon beacon) {
-        final String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
-
-        Log.d(TAG, "showBeacon: "+URL);
-
-        supportWebView.loadUrl(URL);
-        supportWebView.setWebViewClient(new WebViewClient() {
-            public void onPageFinished(WebView view, String url) {
-                webView.loadUrl(URL);
-                actual = beacon;
-            }
-        });
-
-
-    }
 
     public Beacon nearestVATE(Collection<Beacon> beacons) {
         Beacon nearest = null;
@@ -125,24 +130,59 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
                 nearest = beacon;
             }
         }
-
-        Log.d(TAG, "nearestVATE: "+nearest);
         return nearest;
     }
 
     public void updateBeacon(final Beacon beacon) {
 
-        int height = (int) Math.floor(webView.getContentHeight() * getResources().getDisplayMetrics().density);
-        int webViewHeight = webView.getMeasuredHeight();
+        WebView actualWV = showingA?webViewA:webViewB;
+        WebView hiddenWV = showingA?webViewB:webViewA;
 
-        if(actual == null || webView.getScrollY() + webViewHeight >= height) {
+        int height = (int) Math.floor(actualWV.getContentHeight() * getResources().getDisplayMetrics().density);
+        int webViewHeight = actualWV.getMeasuredHeight();
+
+        if(actual == null) {
+            Log.d(TAG, "updateBeacon: first showing");
+            final String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
+
+            Log.d(TAG, "showBeacon: "+URL);
+            actual = beacon;
+
+            hiddenWV.loadUrl(URL);
+            hiddenWV.setWebViewClient(new WebViewClient() {
+                public void onPageFinished(WebView view, String url) {
+                    swapWebViews();
+                }
+            });
+        }
+        else if(actualWV.getScrollY() + webViewHeight >= height) {
             Log.d(TAG, "updateBeacon: end reached");
-            showBeacon(beacon);
+            final String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
+
+            Log.d(TAG, "showBeacon: "+URL);
+            actual = beacon;
+
+            hiddenWV.loadUrl(URL);
+            hiddenWV.setWebViewClient(new WebViewClient() {
+                public void onPageFinished(WebView view, String url) {
+                    swapWebViews();
+                }
+            });
+
         }
         else if (next == null || !isEqualBeacon(next, beacon)) {
             Log.d(TAG, "updateBeacon: setting next");
             next = beacon;
-            fab.setVisibility(View.VISIBLE);
+
+            final String URL = buildURL(beacon.getId2().toString(), beacon.getId3().toString());
+
+            hiddenWV.loadUrl(URL);
+            hiddenWV.setWebViewClient(new WebViewClient() {
+                public void onPageFinished(WebView view, String url) {
+                    fab.setVisibility(View.VISIBLE);
+                }
+            });
+
         }
     }
 
@@ -160,7 +200,8 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
 
 
 
-                if(nearest!=null && (actual==null || !isEqualBeacon(nearest, actual))) {
+                if(nearest!=null && (actual==null || !isEqualBeacon(nearest, actual)) && (next == null || !isEqualBeacon(nearest, next))) {
+                    Log.d(TAG, "new beacon: "+nearest);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
