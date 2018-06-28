@@ -16,6 +16,7 @@
 
 
     <application
+        android:name=".VATE"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -23,6 +24,7 @@
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
+            android:launchMode="singleInstance"
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
