@@ -22,6 +22,7 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
+import org.altbeacon.beacon.service.ArmaRssiFilter;
 
 import java.util.Collection;
 
@@ -41,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -199,10 +203,9 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 final Beacon nearest = nearestVATE(beacons);
 
-
-
-                if(nearest!=null && (actual==null || !isEqualBeacon(nearest, actual)) && (next == null || !isEqualBeacon(nearest, next))) {
-                    Log.d(TAG, "new beacon: "+nearest);
+                
+                if(nearest!=null && (actual==null ||!isEqualBeacon( nearest, actual)) && (next == null || !isEqualBeacon(nearest, next)) && nearest.getRunningAverageRssi() > Constants.BEACONS_THRESHOLD) {
+                    Log.d(TAG, "new beacon: "+nearest + " rssi: " +nearest.getRunningAverageRssi());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
