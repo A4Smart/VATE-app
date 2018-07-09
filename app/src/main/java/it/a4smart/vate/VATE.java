@@ -17,43 +17,59 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
+/**
+ * To manage notification and search for beacon in the background we need to edit our application
+ * base class. Here we take care of searching beacon and eventually notify the user that a new
+ * beacon has been found.
+ */
+
 public class VATE extends Application implements BootstrapNotifier {
-        private static final String TAG = ".VATE";
-        private RegionBootstrap regionBootstrap;
-        private BackgroundPowerSaver backgroundPowerSaver;
+    private static final String TAG = ".VATE";
+    private RegionBootstrap regionBootstrap;
+    private BackgroundPowerSaver backgroundPowerSaver;
 
-        @Override
-        public void onCreate() {
-            super.onCreate();
-            Log.d(TAG, "App started up");
-            BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "App started up");
+        BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
 
-            BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
+        BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
+        beaconManager.getBeaconParsers().add(parser);
 
-            beaconManager.getBeaconParsers().add(parser);
+        //This is the filter for our background beacon search. Beacons are filtered by their UUID
+        Region region = new Region("VATE_background", Identifier.parse(Constants.VATE_UUID), null, null);
 
-            Region region = new Region("VATE_background", Identifier.parse(Constants.VATE_UUID), null, null);
-            regionBootstrap = new RegionBootstrap(this, region);
+        //Starting background search with a custom filter
+        regionBootstrap = new RegionBootstrap(this, region);
 
-            backgroundPowerSaver = new BackgroundPowerSaver(this);
-        }
+        //The AltBeacon library's documentation advise to create an instance of this class to greatly
+        //reduce power consumption. This has to be done once, and the object is never accessed again.
+        backgroundPowerSaver = new BackgroundPowerSaver(this);
+    }
 
-        @Override
-        public void didDetermineStateForRegion(int arg0, Region arg1) {
+    @Override
+    public void didDetermineStateForRegion(int arg0, Region arg1) {
 
-        }
+    }
 
-        @Override
-        public void didEnterRegion(Region arg0) {
-            //TODO fix this, doesn't seems to work in background for some reasons
-            Log.d(TAG, "didEnterRegion");
-            sendNotification();
-        }
+    /**
+     * Function that is called when the user get near a beacon which corresponds the filter
+     * description. Since we know the beacon is ours, we can just send a notification if the app
+     * is not already open.
+     */
+    @Override
+    public void didEnterRegion(Region arg0) {
+        //TODO fix this, doesn't seems to always work in background, for some reasons
+        //TODO check if the app is not already opened
+        Log.d(TAG, "didEnterRegion");
+        sendNotification();
+    }
 
-        @Override
-        public void didExitRegion(Region arg0) {
-
-        }
+    @Override
+    public void didExitRegion(Region arg0) {
+        //TODO delete the notification if out of range
+    }
 
 
     private void sendNotification() {
