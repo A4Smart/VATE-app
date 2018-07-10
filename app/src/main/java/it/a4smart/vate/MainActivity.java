@@ -21,7 +21,11 @@ import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.service.ArmaRssiFilter;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
 
+import static it.a4smart.vate.Utils.buildID;
 import static it.a4smart.vate.Utils.isVATEBeacon;
 
 public class MainActivity extends AppCompatActivity implements BeaconConsumer{
@@ -73,52 +77,19 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
     }
 
 
-    /**
-     * Search for the nearest VATE beacon and returns it.
-     * @param beacons Collection of beacons to search in.
-     * @return Nearest beacon.
-     */
-    public Beacon nearestVATE(Collection<Beacon> beacons) {
-        Beacon nearest = null;
-
-        Log.d(TAG, "nearestVATE: -------------------printing beacons-----------------------");
-
-        for (Beacon beacon : beacons) {
-            Log.d(TAG, "nearestVATE: " + beacon.toString() + " rssi: " + beacon.getRunningAverageRssi());
-            if ((nearest==null ||  beacon.getRunningAverageRssi() > nearest.getRunningAverageRssi()) && isVATEBeacon(beacon)) {
-                nearest = beacon;
-            }
-        }
-
-        Log.d(TAG, "nearestVATE: -------------------finished printing----------------------");
-        return nearest;
-    }
-
-
-    /**
-     * Checks if two Beacon object refers to the same beacon.
-     * @return true if the two Beacons refers to the same.
-     */
-    public boolean isEqualBeacon(Beacon a, Beacon b) {
-        return a.getId2().toString().equals(b.getId2().toString()) && a.getId3().toString().equals(b.getId3().toString());
-    }
-
 
     private void handleNewBeacons(Collection<Beacon> beacons) {
+        TreeSet<VBeacon> set = new TreeSet<>((o1, o2) -> (int) (o2.getRssi() - o1.getRssi()));
+
+        Iterator i = beacons.iterator();
+        while (i.hasNext() && set.size() < 3) {
+            VBeacon beacon = new VBeacon((Beacon) i.next());
+            if(beacon.isVATE() && beacon.isNear()) set.add(beacon);
+        }
 
         // here i have more than one beacon
+        Log.d(TAG, "handleNewBeacons: " + set);
 
-        final Beacon nearest = nearestVATE(beacons);
-
-
-        if(nearest!=null && (actual==null ||!isEqualBeacon( nearest, actual)) && (next == null || !isEqualBeacon(nearest, next)) && nearest.getRunningAverageRssi() > Constants.BEACONS_THRESHOLD) {
-            Log.d(TAG, "new beacon: "+nearest + " rssi: " +nearest.getRunningAverageRssi());
-            runOnUiThread(() -> {
-                //here i have the nearest beacon
-                //TODO do something with it
-
-            });
-        }
 
     }
 
@@ -132,12 +103,14 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
 
         beaconManager.addRangeNotifier((beacons, region) -> handleNewBeacons(beacons));
 
+        Region region = new Region("VATE_ranging", Identifier.parse(Constants.VATE_UUID), null, null);
+
         try {
-            Region region = new Region("VATE_ranging", Identifier.parse(Constants.VATE_UUID), null, null);
             beaconManager.startRangingBeaconsInRegion(region);
             Log.d(TAG, "onBeaconServiceConnect: STARTED SEARCHING BEACONS!");
         } catch (RemoteException e) {
             Log.e(TAG, "onBeaconServiceConnect: ", e);
+            //TODO tell the user an error happened
         }
     }
 
@@ -150,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
     private void permissionCheck() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //TODO tell the user what the permission is used for
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
             }
         }
