@@ -16,7 +16,7 @@ public class TTS {
         ttsEngine.speak(textToSay, TextToSpeech.QUEUE_ADD, null, "VATE_tts");
     }
 
-    public boolean isTTSEnabled() {
+    public boolean isEnabled() {
         return ttsEnabled;
     }
 

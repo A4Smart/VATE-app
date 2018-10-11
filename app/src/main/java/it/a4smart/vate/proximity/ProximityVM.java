@@ -7,7 +7,7 @@ import it.a4smart.vate.common.VBeacon;
 
 public class ProximityVM {
     private TreeSet<VBeacon> beacons;
-    private ArrayList<ProximityFragment> fragments;
+    private ArrayList<SingleProximityFragment> fragments;
 
     public ProximityVM() {
         fragments = new ArrayList<>(3);
@@ -17,7 +17,7 @@ public class ProximityVM {
         return fragments.size();
     }
 
-    ProximityFragment getFragment(int position) {
+    SingleProximityFragment getFragment(int position) {
         return fragments.get(position);
     }
 
@@ -26,12 +26,13 @@ public class ProximityVM {
 
         for (VBeacon beacon : beacons) {
             if (!fragmentAlreadyCreated(beacon.getID()))
-                fragments.add(ProximityFragment.newInstance(beacon));
+                fragments.add(SingleProximityFragment.newInstance(beacon));
         }
     }
 
     private boolean fragmentAlreadyCreated(String id) {
-        for (ProximityFragment fragment : fragments) if (fragment.getID().equals(id)) return true;
+        for (SingleProximityFragment fragment : fragments)
+            if (fragment.getID().equals(id)) return true;
         return false;
     }
 

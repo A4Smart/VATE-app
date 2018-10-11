@@ -19,7 +19,6 @@ import org.altbeacon.beacon.startup.RegionBootstrap;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 import it.a4smart.vate.common.Constants;
-import it.a4smart.vate.common.TTS;
 
 /**
  * To manage notification and search for beacon in the background we need to edit our application
@@ -49,10 +48,6 @@ public class VATE extends Application implements BootstrapNotifier {
         //The AltBeacon library's documentation advise to create an instance of this class to greatly
         //reduce power consumption. This has to be done once, and the object is never accessed again.
         backgroundPowerSaver = new BackgroundPowerSaver(this);
-
-        //Creating a TTS engine to use everywhere in the app
-        TTS.createNewInstance(getApplicationContext());
-
     }
 
     private void setupBeaconManager() {

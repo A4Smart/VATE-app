@@ -2,16 +2,22 @@ package it.a4smart.vate;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.material.tabs.TabLayout;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import it.a4smart.vate.proximity.ProximityActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import it.a4smart.vate.common.TTS;
+import it.a4smart.vate.guide.GuideFragment;
+import it.a4smart.vate.proximity.ProximityFragment;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
@@ -24,10 +30,30 @@ public class MainActivity extends AppCompatActivity {
 
         initBluetooth();
         permissionCheck();
+        TTS.createNewInstance(getApplicationContext());
 
-        //Switching to proximity activity
-        Intent intent = new Intent(this, ProximityActivity.class);
-        startActivity(intent);
+        TabLayout tabLayout = findViewById(R.id.main_tab);
+        tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0)
+                    setFragment(getSupportFragmentManager(), ProximityFragment.newInstance());
+                if (tab.getPosition() == 1)
+                    setFragment(getSupportFragmentManager(), GuideFragment.newInstance());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        setFragment(getSupportFragmentManager(), ProximityFragment.newInstance());
     }
 
     /**
@@ -78,4 +104,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private static void setFragment(FragmentManager fragmentManager, Fragment fragment) {
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.main_fragment, fragment);
+        ft.commit();
+    }
 }
