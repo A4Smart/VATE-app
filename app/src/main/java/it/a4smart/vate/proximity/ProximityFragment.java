@@ -1,85 +1,89 @@
 package it.a4smart.vate.proximity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+
+import org.altbeacon.beacon.Beacon;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.TreeSet;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import it.a4smart.vate.R;
-import it.a4smart.vate.common.Constants;
+import it.a4smart.vate.common.BeaconsFragment;
+import it.a4smart.vate.common.TTS;
 import it.a4smart.vate.common.VBeacon;
 
-
-/**
- * This fragment contains the page to be shown to the user, and corresponds to a beacon.
- *
- * Having a class to represent every single beacon's page lets us store an unknown number
- * of beacon in memory, and keep them loaded to increase speed of the app, at the cost of some
- * memory, which in modern device is plenty. Moreover by using the fragment backstack we can
- * mostly ignore the memory consumption, since Android will take care of it.
- */
-public class ProximityFragment extends Fragment {
+public class ProximityFragment extends BeaconsFragment {
     private final static String TAG = "ProximityFragment";
-    private final static String ID_KEY = "ID"; //Key for the parameter when the fragment is created
-    private String ID; //ID to identify the beacon
-    private WebView webView;
-    private String tts_text;
+    private TreeSet<VBeacon> beaconsSet = new TreeSet<>((o1, o2) -> (o2.getRssi() - o1.getRssi()));
+    private ProximityVM viewModel;
+    private PagerAdapter pagerAdapter;
+    private ViewPager viewPager;
+    private FloatingActionButton ttsButton;
+    private TTS tts;
 
-
-    /**
-     * Creates a fragment with the given Beacon.
-     * @param beacon Beacon
-     * @return The fragment created
-     */
-    public static ProximityFragment newInstance(VBeacon beacon) {
-
-        Bundle args = new Bundle();
-        args.putString(ID_KEY, beacon.getID());
-
-        ProximityFragment fragment = new ProximityFragment();
-        fragment.setArguments(args);
-        return fragment;
+    public static ProximityFragment newInstance() {
+        return new ProximityFragment();
     }
 
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (ID == null) ID = getArguments().getString(ID_KEY);
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_proximity, container, false);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_page, container, false);
-        webView = view.findViewById(R.id.webView);
+        //Creating viewModel for proximity
+        viewModel = new ProximityVM();
 
-        load();
+        //Creating adapter connected to viewModel
+        pagerAdapter = new ProximityAdapter(getChildFragmentManager(), viewModel);
+
+        //Creating the viewPager and binding it to the pagerAdapter
+        viewPager = view.findViewById(R.id.viewpager);
+        viewPager.setAdapter(pagerAdapter);
+
+        //Populating tabs with the viewPager
+        TabLayout tabs = view.findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+
+        Log.d(TAG, "onCreateView: trying to get TTS");
+        tts = TTS.getInstance();
+
+        //Setting up the TTS button
+        if (tts.isEnabled()) {
+            Log.d(TAG, "onCreateView: TTS enabled, setting up...");
+            ttsButton = view.findViewById(R.id.fab);
+            ttsButton.show();
+            ttsButton.setOnClickListener(btnview -> {
+                String textToSay = viewModel.getTTSText(viewPager.getCurrentItem());
+                tts.speak(textToSay);
+            });
+
+        }
 
         return view;
     }
 
-    public void load() {
 
-        webView.getSettings().setJavaScriptEnabled(true);
+    @Override
+    public void handleNewBeacons(Collection<Beacon> beacons) {
+        Iterator i = beacons.iterator();
+        while (i.hasNext() && beaconsSet.size() < 3) {
+            VBeacon beacon = new VBeacon((Beacon) i.next());
+            if (beacon.isVATE() && beacon.isNear()) beaconsSet.add(beacon);
+        }
 
-        webView.loadUrl(Constants.WEB_ADDRESS+ID);
-        webView.setWebViewClient(new WebViewClient() {
-            public void onPageFinished(WebView view, String url) {
-                webView.evaluateJavascript(
-                        "(function() { return document.getElementById('tts_text').innerHTML; })();",
-                        text -> tts_text = text);
-            }
-        });
-    }
-
-    public String getID () {
-        return (ID == null) ? ID = getArguments().getString(ID_KEY) : ID;
-    }
-
-    public String getTTSText() {
-        return tts_text;
+        viewModel.setBeacons(beaconsSet);
+        pagerAdapter.notifyDataSetChanged();
     }
 }
