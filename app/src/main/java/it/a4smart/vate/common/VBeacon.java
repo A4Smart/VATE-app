@@ -1,4 +1,4 @@
-package it.a4smart.vate;
+package it.a4smart.vate.common;
 
 import org.altbeacon.beacon.Beacon;
 
@@ -25,11 +25,7 @@ public class VBeacon {
         return uuid.equals(Constants.VATE_UUID);
     }
 
-    public String getURL() {
-        return Constants.WEB_ADDRESS + buildID();
-    }
-
-    private String buildID() {
+    public String getID() {
         return major + "_" + minor;
     }
 
@@ -51,7 +47,7 @@ public class VBeacon {
 
     @Override
     public String toString() {
-        return "{VATE:"+isVATE()+", ID:"+buildID() +", RSSI:" + rssi + '}';
+        return "{VATE:" + isVATE() + ", ID:" + getID() + ", RSSI:" + rssi + '}';
     }
 
     @Override

@@ -1,119 +1,44 @@
 package it.a4smart.vate;
 
 import android.Manifest;
-import android.content.DialogInterface;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.BeaconConsumer;
-import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.Identifier;
-import org.altbeacon.beacon.RangeNotifier;
-import org.altbeacon.beacon.Region;
-import org.altbeacon.beacon.service.ArmaRssiFilter;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import it.a4smart.vate.proximity.ProximityActivity;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.TreeSet;
-
-import static it.a4smart.vate.Utils.buildID;
-import static it.a4smart.vate.Utils.isVATEBeacon;
-
-public class MainActivity extends AppCompatActivity implements BeaconConsumer{
+public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
-    private BeaconManager beaconManager;
-
-    private Beacon actual;
-    private Beacon next;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
-        permissionCheck();
         initBluetooth();
+        permissionCheck();
 
+        //Switching to proximity activity
+        Intent intent = new Intent(this, ProximityActivity.class);
+        startActivity(intent);
     }
 
-
     /**
-     * Starts the bluetooth and beacon manager.
+     * Enables bluetooth if it's turned off, since we need it for beacons detection.
      */
     private void initBluetooth() {
-        //TODO check if bluetooth is turned on
-
-        beaconManager = BeaconManager.getInstanceForApplication(this);
-
-        /*
-         * The next instruction creates a parser specific for iBeacon:
-         * id1 -> UUID
-         * id2 -> Major
-         * id3 -> Minor
-         */
-        BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
-
-        beaconManager.getBeaconParsers().add(parser);
-
-        beaconManager.bind(this);
-    }
-
-
-
-    private void handleNewBeacons(Collection<Beacon> beacons) {
-        TreeSet<VBeacon> set = new TreeSet<>((o1, o2) -> (int) (o2.getRssi() - o1.getRssi()));
-
-        Iterator i = beacons.iterator();
-        while (i.hasNext() && set.size() < 3) {
-            VBeacon beacon = new VBeacon((Beacon) i.next());
-            if(beacon.isVATE() && beacon.isNear()) set.add(beacon);
-        }
-
-        // here i have more than one beacon
-        Log.d(TAG, "handleNewBeacons: " + set);
-
-
-    }
-
-
-    /**
-     * This will be called when the beacon service is first connected.
-     * It starts ranging and sets the handler.
-     */
-    @Override
-    public void onBeaconServiceConnect() {
-
-        beaconManager.addRangeNotifier((beacons, region) -> handleNewBeacons(beacons));
-
-        Region region = new Region("VATE_ranging", Identifier.parse(Constants.VATE_UUID), null, null);
-
-        try {
-            beaconManager.startRangingBeaconsInRegion(region);
-            Log.d(TAG, "onBeaconServiceConnect: STARTED SEARCHING BEACONS!");
-        } catch (RemoteException e) {
-            Log.e(TAG, "onBeaconServiceConnect: ", e);
-            //TODO tell the user an error happened
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+            bluetoothAdapter.enable();
         }
     }
-
 
     /**
      * Since SDK 23 we have to check for permission at runtime.
@@ -131,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
 
     /**
      * Callback for the permission request.
-     * @see android.support.v4.app.FragmentActivity#onRequestPermissionsResult(int, String[], int[])
+     * @see FragmentActivity#onRequestPermissionsResult(int, String[], int[])
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -153,25 +78,4 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer{
         }
     }
 
-
-
-    //Activity life management stuff
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        beaconManager.unbind(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (beaconManager.isBound(this)) beaconManager.setBackgroundMode(true);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (beaconManager.isBound(this)) beaconManager.setBackgroundMode(false);
-    }
 }

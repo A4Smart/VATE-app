@@ -5,8 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
@@ -14,8 +12,14 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
+import org.altbeacon.beacon.service.ArmaRssiFilter;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
+import it.a4smart.vate.common.Constants;
+import it.a4smart.vate.common.TTS;
 
 /**
  * To manage notification and search for beacon in the background we need to edit our application
@@ -32,10 +36,9 @@ public class VATE extends Application implements BootstrapNotifier {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "App started up");
-        BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
 
-        BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
-        beaconManager.getBeaconParsers().add(parser);
+        //Setting parameters for the beacon manager
+        setupBeaconManager();
 
         //This is the filter for our background beacon search. Beacons are filtered by their UUID
         Region region = new Region("VATE_background", Identifier.parse(Constants.VATE_UUID), null, null);
@@ -46,6 +49,17 @@ public class VATE extends Application implements BootstrapNotifier {
         //The AltBeacon library's documentation advise to create an instance of this class to greatly
         //reduce power consumption. This has to be done once, and the object is never accessed again.
         backgroundPowerSaver = new BackgroundPowerSaver(this);
+
+        //Creating a TTS engine to use everywhere in the app
+        TTS.createNewInstance(getApplicationContext());
+
+    }
+
+    private void setupBeaconManager() {
+        BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
+        BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
+        beaconManager.getBeaconParsers().add(parser);
+        BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
     }
 
     @Override
