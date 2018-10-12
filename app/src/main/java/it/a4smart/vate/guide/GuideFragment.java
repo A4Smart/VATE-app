@@ -56,17 +56,24 @@ public class GuideFragment extends BeaconsFragment {
     void guide(int minor) {
         Log.d(TAG, "guide: minor: " + minor);
         if (dir == 0) {
-            if (minor == DEWAY[0]) dir = 1;
-            else if (minor == DEWAY[DEWAY.length - 1]) dir = -1;
-            else Log.d(TAG, "guide: NOT PART OF WAY");
+            if (minor == DEWAY[0]) {
+                dir = 1;
+                Log.d(TAG, "guide: ENTERED THE WAY");
+            } else if (minor == DEWAY[DEWAY.length - 1]) {
+                actPos = DEWAY.length - 1;
+                dir = -1;
+                Log.d(TAG, "guide: ENTERED THE YAW");
+            } else {
+                Log.d(TAG, "guide: NOT PART OF WAY");
+            }
+        } else if (minor == DEWAY[actPos]) {
+            Log.d(TAG, "nextStep: NOT MOVING");
         } else if (minor == DEWAY[0] || minor == DEWAY[DEWAY.length - 1]) {
             dir = 0;
             Log.d(TAG, "guide: ARRIVED");
         } else if (minor == DEWAY[actPos + dir]) {
             actPos += dir;
             Log.d(TAG, "nextStep: RIGHT DIRECTION");
-        } else if (minor == DEWAY[actPos]) {
-            Log.d(TAG, "nextStep: NOT MOVING");
         } else {
             Log.d(TAG, "nextStep: WRONG");
         }
