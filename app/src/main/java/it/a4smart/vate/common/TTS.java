@@ -3,6 +3,8 @@ package it.a4smart.vate.common;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 
+
+//TODO async problem here need fix.
 public class TTS {
     private static TTS instance = null;
     private final TextToSpeech ttsEngine;

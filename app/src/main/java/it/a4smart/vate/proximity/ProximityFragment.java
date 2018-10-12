@@ -68,7 +68,6 @@ public class ProximityFragment extends BeaconsFragment {
                 String textToSay = viewModel.getTTSText(viewPager.getCurrentItem());
                 tts.speak(textToSay);
             });
-
         }
 
         return view;
