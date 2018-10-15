@@ -6,14 +6,14 @@ import java.util.Objects;
 
 public class VBeacon {
     private final String uuid;
-    private final String major;
-    private final String minor;
+    private final int major;
+    private final int minor;
     private final int rssi;
 
     public VBeacon (Beacon beacon) {
         uuid = beacon.getId1().toString();
-        major = beacon.getId2().toString();
-        minor = beacon.getId3().toString();
+        major = beacon.getId2().toInt();
+        minor = beacon.getId3().toInt();
         rssi = (int) beacon.getRunningAverageRssi();
     }
 
@@ -33,11 +33,11 @@ public class VBeacon {
         return uuid;
     }
 
-    public String getMajor() {
+    public int getMajor() {
         return major;
     }
 
-    public String getMinor() {
+    public int getMinor() {
         return minor;
     }
 

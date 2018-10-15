@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import it.a4smart.vate.R;
 import it.a4smart.vate.common.BeaconsFragment;
+import it.a4smart.vate.common.VBeacon;
 
 public class GuideFragment extends BeaconsFragment {
     private final static String TAG = "GuideFragment";
@@ -41,10 +42,10 @@ public class GuideFragment extends BeaconsFragment {
     @Override
     public void handleNewBeacons(Collection<Beacon> beacons) {
         try {
-
-            Beacon nearest = Collections.max(beacons, (o1, o2) -> Double.compare(o1.getRunningAverageRssi(), o2.getRunningAverageRssi()));
-            int minor = nearest.getId3().toInt();
-            guide(minor);
+            VBeacon nearest = new VBeacon(Collections.max(beacons, (o1, o2) -> Double.compare(o1.getRunningAverageRssi(), o2.getRunningAverageRssi())));
+            int minor = nearest.getMinor();
+            int major = nearest.getMajor();
+            guide(major, minor);
 
         } catch (NoSuchElementException ignored) {
         }
@@ -52,9 +53,9 @@ public class GuideFragment extends BeaconsFragment {
 
     private String out;
 
-    void guide(int minor) {
+    void guide(int major, int minor) {
         if (!guideFSM.isReady()) {
-            int[] way = Routing.getRoute(minor);
+            int[] way = Routing.getRoute(major, minor);
             if (way != null) {
                 guideFSM.setWay(way);
                 out = "";
