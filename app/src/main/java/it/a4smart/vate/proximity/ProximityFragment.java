@@ -79,7 +79,7 @@ public class ProximityFragment extends BeaconsFragment {
         Iterator i = beacons.iterator();
         while (i.hasNext() && beaconsSet.size() < 3) {
             VBeacon beacon = new VBeacon((Beacon) i.next());
-            if (beacon.isVATE() && beacon.isNear()) beaconsSet.add(beacon);
+            if (beacon.isNear()) beaconsSet.add(beacon);
         }
 
         viewModel.setBeacons(beaconsSet);

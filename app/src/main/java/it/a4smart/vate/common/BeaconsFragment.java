@@ -41,7 +41,7 @@ public abstract class BeaconsFragment extends Fragment implements BeaconConsumer
     @Override
     public void onBeaconServiceConnect() {
         beaconManager.addRangeNotifier((beacons, region) -> handleNewBeacons(beacons));
-        Region region = new Region("VATE_proximity", Identifier.parse(Constants.VATE_UUID), Identifier.parse("42"), null);
+        Region region = new Region("VATE_proximity", Identifier.parse(Constants.VATE_UUID), null, null);
 
         try {
             beaconManager.startRangingBeaconsInRegion(region);

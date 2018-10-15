@@ -21,10 +21,6 @@ public class VBeacon {
         return rssi > Constants.BEACONS_THRESHOLD;
     }
 
-    public boolean isVATE() {
-        return uuid.equals(Constants.VATE_UUID);
-    }
-
     public String getID() {
         return major + "_" + minor;
     }
@@ -47,7 +43,7 @@ public class VBeacon {
 
     @Override
     public String toString() {
-        return "{VATE:" + isVATE() + ", ID:" + getID() + ", RSSI:" + rssi + '}';
+        return "{VATE beacon, ID:" + getID() + ", RSSI:" + rssi + '}';
     }
 
     @Override

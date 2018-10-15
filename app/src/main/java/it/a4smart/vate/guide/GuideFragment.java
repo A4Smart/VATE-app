@@ -45,7 +45,7 @@ public class GuideFragment extends BeaconsFragment {
             VBeacon nearest = new VBeacon(Collections.max(beacons, (o1, o2) -> Double.compare(o1.getRunningAverageRssi(), o2.getRunningAverageRssi())));
             int minor = nearest.getMinor();
             int major = nearest.getMajor();
-            guide(major, minor);
+            if (major == 42 || minor == 10000) guide(major, minor);
 
         } catch (NoSuchElementException ignored) {
         }
@@ -53,7 +53,7 @@ public class GuideFragment extends BeaconsFragment {
 
     private String out;
 
-    void guide(int major, int minor) {
+    private void guide(int major, int minor) {
         if (!guideFSM.isReady()) {
             int[] way = Routing.getRoute(major, minor);
             if (way != null) {
