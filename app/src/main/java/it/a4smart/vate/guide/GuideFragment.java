@@ -50,12 +50,15 @@ public class GuideFragment extends BeaconsFragment {
         }
     }
 
-    private String out = "";
+    private String out;
 
     void guide(int minor) {
         if (!guideFSM.isReady()) {
             int[] way = Routing.getRoute(minor);
-            if (way != null) guideFSM.setWay(way);
+            if (way != null) {
+                guideFSM.setWay(way);
+                out = "";
+            }
         } else {
             out += "minor: " + minor + ", guide: " + guideFSM.nextMove(minor) + "\n";
             textView.setText(out);
