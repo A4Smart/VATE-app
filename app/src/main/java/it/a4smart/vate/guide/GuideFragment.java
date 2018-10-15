@@ -10,6 +10,7 @@ import org.altbeacon.beacon.Beacon;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,11 +40,13 @@ public class GuideFragment extends BeaconsFragment {
 
     @Override
     public void handleNewBeacons(Collection<Beacon> beacons) {
-        Beacon nearest = Collections.max(beacons, (o1, o2) -> Double.compare(o1.getRunningAverageRssi(), o2.getRunningAverageRssi()));
+        try {
 
-        if (nearest != null) {
+            Beacon nearest = Collections.max(beacons, (o1, o2) -> Double.compare(o1.getRunningAverageRssi(), o2.getRunningAverageRssi()));
             int minor = nearest.getId3().toInt();
             guide(minor);
+
+        } catch (NoSuchElementException ignored) {
         }
     }
 
