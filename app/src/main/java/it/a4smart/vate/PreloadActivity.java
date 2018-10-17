@@ -14,7 +14,6 @@ public class PreloadActivity extends AppCompatActivity implements Runnable {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         TTS.createNewInstance(getApplicationContext(), this);
-
     }
 
     @Override
