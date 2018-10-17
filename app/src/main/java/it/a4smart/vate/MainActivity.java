@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
         initBluetooth();
         permissionCheck();
-        TTS.createNewInstance(getApplicationContext());
 
         TabLayout tabLayout = findViewById(R.id.main_tab);
         tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {
@@ -114,6 +113,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TTS.getInstance().destroy();
+        TTS.destroy();
     }
 }
