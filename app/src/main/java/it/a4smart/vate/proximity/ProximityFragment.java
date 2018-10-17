@@ -65,8 +65,8 @@ public class ProximityFragment extends BeaconsFragment {
             ttsButton = view.findViewById(R.id.fab);
             ttsButton.show();
             ttsButton.setOnClickListener(btnview -> {
-                String textToSay = viewModel.getTTSText(viewPager.getCurrentItem());
-                tts.speak(textToSay);
+                if (!tts.isSpeaking()) tts.speak(viewModel.getTTSText(viewPager.getCurrentItem()));
+                else tts.stop();
             });
         }
 

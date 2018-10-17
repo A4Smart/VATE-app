@@ -34,7 +34,7 @@ public class GuideFSM {
     }
 
     boolean isReady() {
-        return way != null && position < way.length - 1;
+        return way != null && position < last;
     }
 
 }

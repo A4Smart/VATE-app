@@ -110,4 +110,10 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(R.id.main_fragment, fragment);
         ft.commit();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TTS.getInstance().destroy();
+    }
 }

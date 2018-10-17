@@ -29,4 +29,16 @@ public class TTS {
     public static synchronized void createNewInstance(Context context) {
         instance = new TTS(context);
     }
+
+    public boolean isSpeaking() {
+        return ttsEngine.isSpeaking();
+    }
+
+    public void stop() {
+        ttsEngine.stop();
+    }
+
+    public void destroy() {
+        ttsEngine.shutdown();
+    }
 }
