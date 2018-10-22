@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_name">Pubblicità</string>
+    <string name="channel_description">Attività ed eventi intorno a te!</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="func_limited">Funzionalità limitate</string>
+    <string name="func_limited_extended">Dato che l\'accesso alla posizione non è stato permesso, l\'applicazione non potrà scoprire i beacon, quindi ora si chiuderà.</string>
+</resources>

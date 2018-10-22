@@ -1,7 +1,6 @@
 package it.a4smart.vate.proximity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,12 +24,10 @@ import it.a4smart.vate.common.TTS;
 import it.a4smart.vate.common.VBeacon;
 
 public class ProximityFragment extends BeaconsFragment {
-    private final static String TAG = "ProximityFragment";
     private TreeSet<VBeacon> beaconsSet = new TreeSet<>((o1, o2) -> (o2.getRssi() - o1.getRssi()));
     private ProximityVM viewModel;
     private PagerAdapter pagerAdapter;
     private ViewPager viewPager;
-    private FloatingActionButton ttsButton;
     private TTS tts;
 
     public static ProximityFragment newInstance() {
@@ -56,13 +53,11 @@ public class ProximityFragment extends BeaconsFragment {
         TabLayout tabs = view.findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        Log.d(TAG, "onCreateView: trying to get TTS");
         tts = TTS.getInstance();
 
         //Setting up the TTS button
         if (tts != null && tts.isEnabled()) {
-            Log.d(TAG, "onCreateView: TTS enabled, setting up...");
-            ttsButton = view.findViewById(R.id.fab);
+            FloatingActionButton ttsButton = view.findViewById(R.id.fab);
             ttsButton.show();
             ttsButton.setOnClickListener(btnview -> {
                 if (!tts.isSpeaking()) tts.speak(viewModel.getTTSText(viewPager.getCurrentItem()));

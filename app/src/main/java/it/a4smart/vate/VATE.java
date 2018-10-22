@@ -7,7 +7,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.BeaconParser;
@@ -28,7 +27,6 @@ import it.a4smart.vate.common.Constants;
  */
 
 public class VATE extends Application implements BootstrapNotifier {
-    private static final String TAG = ".VATE";
     private static final int NOTIFICATION_ID = 42;
     private RegionBootstrap regionBootstrap;
     private BackgroundPowerSaver backgroundPowerSaver;
@@ -37,7 +35,6 @@ public class VATE extends Application implements BootstrapNotifier {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "App started up");
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 

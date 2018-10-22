@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -21,7 +20,6 @@ import it.a4smart.vate.guide.GuideFragment;
 import it.a4smart.vate.proximity.ProximityFragment;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     @Override
@@ -65,9 +63,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initBluetooth() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable();
-        }
+        if (!bluetoothAdapter.isEnabled()) bluetoothAdapter.enable();
     }
 
     /**
@@ -92,13 +88,10 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "coarse location permission granted");
-                } else {
+                if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    //TODO put those in @string
-                    builder.setTitle("Functionality limited");
-                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons, so it will now close.");
+                    builder.setTitle(getString(R.string.func_limited));
+                    builder.setMessage(getString(R.string.func_limited_extended));
                     builder.setOnDismissListener(dialog -> {
                         MainActivity.super.onBackPressed(); //Close the application since we can do nothing without permissions
                     });

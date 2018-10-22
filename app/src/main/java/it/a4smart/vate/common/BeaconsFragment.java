@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -19,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public abstract class BeaconsFragment extends Fragment implements BeaconConsumer {
-    private final static String TAG = "BeaconsFragment";
 
     private BeaconManager beaconManager;
 
@@ -45,9 +43,7 @@ public abstract class BeaconsFragment extends Fragment implements BeaconConsumer
 
         try {
             beaconManager.startRangingBeaconsInRegion(region);
-            Log.d(TAG, "onBeaconServiceConnect: STARTED SEARCHING BEACONS!");
         } catch (RemoteException e) {
-            Log.e(TAG, "onBeaconServiceConnect: ", e);
             //TODO tell the user an error happened
         }
     }
