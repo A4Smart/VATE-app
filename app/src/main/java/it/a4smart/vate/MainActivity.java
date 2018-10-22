@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.material.tabs.TabLayout;
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setFragment(getSupportFragmentManager(), ProximityFragment.newInstance());
+    }
+
+    public void inForeground(boolean inForeground) {
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("isInForeground", inForeground).apply();
     }
 
     /**
@@ -111,8 +116,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        inForeground(true);
+    }
+
+    @Override
+    protected void onPause() {
+        inForeground(false);
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
-        super.onDestroy();
         TTS.destroy();
+        super.onDestroy();
     }
 }

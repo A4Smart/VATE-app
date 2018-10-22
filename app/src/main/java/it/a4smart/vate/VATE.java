@@ -1,10 +1,12 @@
 package it.a4smart.vate;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
+import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
@@ -12,12 +14,11 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
-import org.altbeacon.beacon.service.ArmaRssiFilter;
+import org.altbeacon.beacon.service.RunningAverageRssiFilter;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.TaskStackBuilder;
 import it.a4smart.vate.common.Constants;
 
 /**
@@ -28,13 +29,19 @@ import it.a4smart.vate.common.Constants;
 
 public class VATE extends Application implements BootstrapNotifier {
     private static final String TAG = ".VATE";
+    private static final int NOTIFICATION_ID = 42;
     private RegionBootstrap regionBootstrap;
     private BackgroundPowerSaver backgroundPowerSaver;
+    private NotificationManager notificationManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "App started up");
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        createNotificationChannel();
 
         //Setting parameters for the beacon manager
         setupBeaconManager();
@@ -54,11 +61,37 @@ public class VATE extends Application implements BootstrapNotifier {
         BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
         BeaconParser parser = new BeaconParser().setBeaconLayout(Constants.BEACONS_LAYOUT);
         beaconManager.getBeaconParsers().add(parser);
-        BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
+        //BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
+        RunningAverageRssiFilter.setSampleExpirationMilliseconds(5000);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_MIN;
+            NotificationChannel channel = new NotificationChannel(Constants.CHANNEL_ADS, name, importance);
+            channel.setDescription(description);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private boolean isInForeground() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("isInForeground", false);
+    }
+
+    private void sendNotification() {
+        Notification notification = new NotificationCompat.Builder(this, Constants.CHANNEL_ADS)
+                .setContentTitle("VATE")
+                .setContentText("Attività ed eventi intorno a te!")
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();
+
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     @Override
-    public void didDetermineStateForRegion(int arg0, Region arg1) {
+    public void didDetermineStateForRegion(int state, Region region) {
 
     }
 
@@ -68,37 +101,13 @@ public class VATE extends Application implements BootstrapNotifier {
      * is not already open.
      */
     @Override
-    public void didEnterRegion(Region arg0) {
-        //TODO fix this, doesn't seems to always work in background, for some reasons
-        //TODO check if the app is not already opened
-        Log.d(TAG, "didEnterRegion");
-        sendNotification();
+    public void didEnterRegion(Region region) {
+        if (!isInForeground()) sendNotification();
     }
 
     @Override
-    public void didExitRegion(Region arg0) {
-        //TODO delete the notification if out of range
+    public void didExitRegion(Region region) {
+        notificationManager.cancel(NOTIFICATION_ID);
     }
 
-
-    private void sendNotification() {
-        //TODO make notifications compatible with API>=26, adding a notification channel
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
-                        .setContentTitle("VATE")
-                        .setContentText("A beacon is nearby.") //TODO put in @string
-                        .setSmallIcon(R.mipmap.ic_launcher);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntent(new Intent(this, MainActivity.class));
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        builder.setContentIntent(resultPendingIntent);
-        NotificationManager notificationManager =
-                (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, builder.build());
-    }
 }

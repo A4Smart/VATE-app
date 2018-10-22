@@ -15,6 +15,9 @@ public abstract class Constants {
      */
     public final static String BEACONS_LAYOUT = "m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24";
 
+    public final static String TTS_SCRIPT = "(function() { return document.getElementById('tts_text').innerHTML; })();";
+
     //Threshold for the beacon to be considered near.
     public final static double BEACONS_THRESHOLD = -80.0;
+    public static final String CHANNEL_ADS = "VATE_ads_channel";
 }
