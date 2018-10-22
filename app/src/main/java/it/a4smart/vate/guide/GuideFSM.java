@@ -1,6 +1,12 @@
 package it.a4smart.vate.guide;
 
 public class GuideFSM {
+    public final static int WRONG = -1;
+    public final static int IDLING = 0;
+    public final static int STARTING = 1;
+    public final static int NEXT = 2;
+    public final static int END = 3;
+
     private int[] way = null;
     private int position;
     private int last;
@@ -11,26 +17,23 @@ public class GuideFSM {
         last = way.length - 1;
     }
 
-    public String nextMove(int minor) {
-        String out = "WRONG";
-
+    public int nextMove(int minor) {
         if (position < 0) {
             if (minor == way[0]) {
                 position = 0;
-                out = "ENTERED THE WAY";
+                return STARTING;
             }
         } else if (position == last) {
-            out = "ARRIVED";
+            return END;
         } else {
             if (minor == way[position]) {
-                out = "NOT MOVING";
+                return IDLING;
             } else if (minor == way[position + 1]) {
                 position++;
-                out = "RIGHT DIRECTION";
+                return NEXT;
             }
         }
-
-        return out;
+        return WRONG;
     }
 
     boolean isReady() {
