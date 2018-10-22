@@ -60,7 +60,7 @@ public class ProximityFragment extends BeaconsFragment {
         tts = TTS.getInstance();
 
         //Setting up the TTS button
-        if (tts.isEnabled()) {
+        if (tts != null && tts.isEnabled()) {
             Log.d(TAG, "onCreateView: TTS enabled, setting up...");
             ttsButton = view.findViewById(R.id.fab);
             ttsButton.show();
