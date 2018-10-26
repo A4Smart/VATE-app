@@ -11,6 +11,7 @@ import org.altbeacon.beacon.Beacon;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import it.a4smart.vate.common.BeaconsFragment;
 import it.a4smart.vate.common.Constants;
 import it.a4smart.vate.common.TTS;
 import it.a4smart.vate.common.VBeacon;
+import it.a4smart.vate.graph.Vertex;
 
 import static it.a4smart.vate.common.Constants.TTS_SCRIPT;
 
@@ -59,8 +61,8 @@ public class GuideFragment extends BeaconsFragment {
 
     private void guide(int major, int minor) {
         if (!guideFSM.isReady()) {
-            int[] way = Routing.getRoute(major, minor);
-            if (way != null) guideFSM.setWay(way);
+            List<Vertex> path = Routing.getRoute(major, minor, 4);
+            if (path != null) guideFSM.setPath(path);
         } else {
             int act = guideFSM.nextMove(minor);
             if (act == GuideFSM.NEXT || act == GuideFSM.STARTING) load(major, minor);
