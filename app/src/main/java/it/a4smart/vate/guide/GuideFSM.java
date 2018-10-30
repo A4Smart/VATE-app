@@ -4,12 +4,12 @@ import java.util.List;
 
 import it.a4smart.vate.graph.Vertex;
 
-public class GuideFSM {
-    public final static int WRONG = -1;
-    public final static int IDLING = 0;
-    public final static int STARTING = 1;
-    public final static int NEXT = 2;
-    public final static int END = 3;
+class GuideFSM {
+    final static int WRONG = -1;
+    final static int IDLING = 0;
+    final static int STARTING = 1;
+    final static int NEXT = 2;
+    final static int END = 3;
 
     private Vertex[] pathArr;
     private int position;
@@ -21,7 +21,7 @@ public class GuideFSM {
         last = pathArr.length - 1;
     }
 
-    public int nextMove(int minor) {
+    int nextMove(int minor) {
         if (position < 0) {
             if (minor == pathArr[0].getName()) {
                 position = 0;
@@ -42,6 +42,10 @@ public class GuideFSM {
 
     boolean isReady() {
         return pathArr != null && position < last;
+    }
+
+    String getUrl() {
+        return pathArr[position].getURI();
     }
 
 }

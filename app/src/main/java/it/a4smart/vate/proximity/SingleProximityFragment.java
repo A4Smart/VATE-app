@@ -65,7 +65,7 @@ public class SingleProximityFragment extends Fragment {
 
         webView.getSettings().setJavaScriptEnabled(true);
 
-        webView.loadUrl(Constants.WEB_ADDRESS+ID);
+        webView.loadUrl(Constants.CONTENT_ADDRESS +ID);
         webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
                 webView.evaluateJavascript(

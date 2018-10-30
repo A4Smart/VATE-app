@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import it.a4smart.vate.R;
 import it.a4smart.vate.common.BeaconsFragment;
-import it.a4smart.vate.common.Constants;
 import it.a4smart.vate.common.TTS;
 import it.a4smart.vate.common.VBeacon;
 import it.a4smart.vate.graph.Vertex;
@@ -26,7 +25,6 @@ import it.a4smart.vate.graph.Vertex;
 import static it.a4smart.vate.common.Constants.TTS_SCRIPT;
 
 public class GuideFragment extends BeaconsFragment {
-    private final static String TAG = "GuideFragment";
     private GuideFSM guideFSM;
     private WebView webView;
     private TTS tts;
@@ -61,16 +59,16 @@ public class GuideFragment extends BeaconsFragment {
 
     private void guide(int major, int minor) {
         if (!guideFSM.isReady()) {
-            List<Vertex> path = Routing.getRoute(major, minor, 4);
+            List<Vertex> path = Routing.getRoute(major, minor, 4); //TODO add choice for destination!!!
             if (path != null) guideFSM.setPath(path);
         } else {
             int act = guideFSM.nextMove(minor);
-            if (act == GuideFSM.NEXT || act == GuideFSM.STARTING) load(major, minor);
+            if (act == GuideFSM.NEXT || act == GuideFSM.STARTING) load(guideFSM.getUrl());
         }
     }
 
-    public void load(int major, int minor) {
-        webView.loadUrl(Constants.WEB_ADDRESS + major + "_" + minor + "24");
+    private void load(String url) {
+        webView.loadUrl(url);
         if (tts.isEnabled()) speak();
     }
 
